@@ -1,0 +1,10 @@
+setup.sh
+test
+showcase
+dist
+.env.example
+.gitignore
+docker-compose.yml
+Dockerfile
+endpoints.json
+README.md
