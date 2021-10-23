@@ -5,6 +5,14 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Create DB Schema",
+      "request": "launch",
+      "runtimeArgs": ["run-script", "schema:sync"],
+      "runtimeExecutable": "npm",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "pwa-node"
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "Debug Nest Framework",
@@ -16,7 +24,7 @@
     },
     {
       "type": "node",
-      "name": "vscode-jest-tests",
+      "name": "Debug Jest Tests",
       "request": "launch",
       "args": ["--runInBand", "--watchAll=false"],
       "cwd": "${workspaceFolder}",
