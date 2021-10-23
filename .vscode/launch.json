@@ -13,6 +13,14 @@
       "type": "pwa-node"
     },
     {
+      "name": "Drop DB",
+      "request": "launch",
+      "runtimeArgs": ["run-script", "drop:database"],
+      "runtimeExecutable": "npm",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "pwa-node"
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "Debug Nest Framework",
