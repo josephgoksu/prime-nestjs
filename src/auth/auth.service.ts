@@ -62,7 +62,7 @@ export class AuthService {
     }
   }
 
-  async createUser(body: any): Promise<Record<string, any>> {
+  async register(body: any): Promise<Record<string, any>> {
     // Validation Flag
     let isOk = false;
 
