@@ -1,8 +1,7 @@
-import { Logger } from '@nestjs/common';
 import { join } from 'path';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
-const databaseConfig = (): PostgresConnectionOptions => ({
+export const dbConfig = (): PostgresConnectionOptions => ({
   type: 'postgres',
   host: process.env.POSTGRES_HOST,
   port: parseInt(process.env.POSTGRES_PORT, 10) || 5432,
@@ -25,6 +24,4 @@ const databaseConfig = (): PostgresConnectionOptions => ({
   },
 });
 
-Logger.debug(databaseConfig());
-
-export default databaseConfig();
+export default dbConfig();
