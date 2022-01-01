@@ -20,6 +20,7 @@ NestJS framework boilerplate with:
 - 😴 **Insomnia** - Insomnia config for endpoints
 - 📏 **ESLint** — Pluggable JavaScript linter
 - 💖 **Prettier** - Opinionated Code Formatter
+- 🕵️‍♂️ **Code Scanning** - Code scanning with CodeQL (GitHub actions)
 
 ## Quick Setup (Production)
 
