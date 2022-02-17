@@ -2,9 +2,11 @@
   <img src="./showcase/prime-nestjs.jpg" width="500" alt="prime-nestjs">
 </p>
 
-## Features
+Production-ready and flexible NestJS Boilerplate with Typescript 🌃, Postgres 👾, TypeORM 🥷 and Docker 🐳.
 
-NestJS framework boilerplate with:
+## Out-of-box Solutions
+
+**Built-in Features**
 
 - 📱 **NestJS** — latest version
 - 🎉 **TypeScript** - Type checking
@@ -20,7 +22,11 @@ NestJS framework boilerplate with:
 - 😴 **Insomnia** - Insomnia config for endpoints
 - 📏 **ESLint** — Pluggable JavaScript linter
 - 💖 **Prettier** - Opinionated Code Formatter
-- 🕵️‍♂️ **Code Scanning** - Code scanning with CodeQL (GitHub actions)
+
+**GitHub actions**
+
+- 🕵️‍♂️ **Code Scanning** - Code scanning with CodeQL
+- 🕵️‍♂️ **Megalinter** - analyzes 48 languages, 22 formats, 19 tooling formats, excessive copy-pastes, spelling mistakes and security issues
 
 ## Quick Setup (Production)
 
