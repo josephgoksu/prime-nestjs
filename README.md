@@ -22,6 +22,7 @@ Production-ready and flexible NestJS Boilerplate with Typescript 🌃, Postgres 
 - 😴 **Insomnia** - Insomnia config for endpoints
 - 📏 **ESLint** — Pluggable JavaScript linter
 - 💖 **Prettier** - Opinionated Code Formatter
+- ✨ **Commitlint** - Lint your conventional commits
 
 **GitHub actions**
 
