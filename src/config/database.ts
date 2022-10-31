@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { join } from 'path';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
@@ -8,7 +9,7 @@ export const dbConfig = (): PostgresConnectionOptions => ({
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
-  ssl: false,
+  ssl: process.env.POSTGRES_SSL === 'true',
   entities: [join(__dirname, '../**/*.entity{.ts,.js}')],
   // We are using migrations, synchronize should be set to false.
   synchronize: false,
@@ -23,5 +24,9 @@ export const dbConfig = (): PostgresConnectionOptions => ({
     entitiesDir: join(__dirname, '../**/*.entity{.ts,.js}'),
   },
 });
+
+if (process.env.NODE_ENV === 'development') {
+  Logger.debug(dbConfig());
+}
 
 export default dbConfig();
