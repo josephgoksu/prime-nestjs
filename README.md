@@ -2,7 +2,7 @@
   <img src="./showcase/prime-nestjs.jpg" width="500" alt="prime-nestjs">
 </p>
 
-Production-ready and flexible NestJS Boilerplate with Typescript 🌃, Postgres 👾, TypeORM 🥷 and Docker 🐳.
+Introducing the NestJS boilerplate, a comprehensive and modular starting point for your next Node.js project! Built with the latest version of NestJS, a powerful and flexible framework for building efficient and scalable server-side applications, this boilerplate includes support for TypeScript, PostgreSQL, and JWT authentication out of the box. Other features include configuration support with Dotenv, RBAC and CBAC for authorization, TypeORM for database interactions, Swagger for API documentation, and Docker Compose for container orchestration. Additionally, the boilerplate comes with pre-configured linting tools and secure HTTP headers with Helmet. Simply clone the repository, install the dependencies, and start building your next great idea!
 
 ## Out-of-box Solutions
 
