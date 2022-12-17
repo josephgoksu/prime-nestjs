@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import bcryptjs from 'bcryptjs';
+import { compareSync, hashSync } from 'bcryptjs';
 import { UsersDTO } from 'src/users/dto/create-user.dto';
 import { validate } from 'class-validator';
 import { LoggerService } from 'src/logger/logger.service';
@@ -43,7 +43,7 @@ export class AuthService {
       }
 
       // Check if the given password match with saved password
-      const isValid = bcryptjs.compareSync(user.password, userDetails.password);
+      const isValid = compareSync(user.password, userDetails.password);
       if (isValid) {
         // Generate JWT token
         return {
@@ -70,7 +70,7 @@ export class AuthService {
     const userDTO = new UsersDTO();
     userDTO.email = body.email;
     userDTO.name = body.name;
-    userDTO.password = bcryptjs.hashSync(body.password, 10);
+    userDTO.password = hashSync(body.password, 10);
 
     // Validate DTO against validate function from class-validator
     await validate(userDTO).then((errors) => {
