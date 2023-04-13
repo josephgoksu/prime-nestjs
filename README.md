@@ -1,12 +1,33 @@
+# NestJS Boilerplate
+
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![GitHub issues](https://img.shields.io/github/issues/joeygoksu/prime-nestjs.svg)
+[![Known Vulnerabilities](https://snyk.io/test/github/joeygoksu/prime-nestjs/badge.svg)](https://snyk.io/test/github/joeygoksu/prime-nestjs)
+![GitHub stars](https://img.shields.io/github/stars/joeygoksu/prime-nestjs.svg?style=social&label=Star&maxAge=2592000)
+
 <p align="left">
-  <img src="./showcase/prime-nestjs.jpg" width="600" alt="prime-nestjs">
+  <img src="documentation/prime-nestjs.jpg" width="600" alt="prime-nestjs">
 </p>
+
+## 📖 Description
+
+![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)
+![Maintenance](https://img.shields.io/maintenance/yes/2021.svg)
+![GitHub last commit](https://img.shields.io/github/last-commit/joeygoksu/prime-nestjs.svg)
+![GitHub repo size](https://img.shields.io/github/repo-size/joeygoksu/prime-nestjs.svg)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/joeygoksu/prime-nestjs.svg)
+![GitHub top language](https://img.shields.io/github/languages/top/joeygoksu/prime-nestjs.svg)
+![GitHub language count](https://img.shields.io/github/languages/count/joeygoksu/prime-nestjs.svg)
+![GitHub contributors](https://img.shields.io/github/contributors/joeygoksu/prime-nestjs.svg)
+![GitHub commit activity the past week, 4 weeks, year](https://img.shields.io/github/commit-activity/y/joeygoksu/prime-nestjs.svg)
+![GitHub commit activity the past week, 4 weeks, year](https://img.shields.io/github/commit-activity/m/joeygoksu/prime-nestjs.svg)
+![GitHub commit activity the past week, 4 weeks, year](https://img.shields.io/github/commit-activity/w/joeygoksu/prime-nestjs.svg)
+![GitHub package.json version](https://img.shields.io/github/package-json/v/joeygoksu/prime-nestjs.svg)
 
 Introducing the NestJS boilerplate, a comprehensive and modular starting point for your next Node.js project! Built with the latest version of NestJS, a powerful and flexible framework for building efficient and scalable server-side applications, this boilerplate includes support for TypeScript, PostgreSQL, and JWT authentication out of the box. Other features include configuration support with Dotenv, RBAC and CBAC for authorization, TypeORM for database interactions, Swagger for API documentation, and Docker Compose for container orchestration. Additionally, the boilerplate comes with pre-configured linting tools and secure HTTP headers with Helmet. Simply clone the repository, install the dependencies, and start building your next great idea!
 
-## Out-of-box Solutions
-
-**Built-in Features**
+## 🚀 Features
 
 - 📱 **NestJS** — latest version
 - 🎉 **TypeScript** - Type checking
@@ -23,9 +44,6 @@ Introducing the NestJS boilerplate, a comprehensive and modular starting point f
 - 📏 **ESLint** — Pluggable JavaScript linter
 - 💖 **Prettier** - Opinionated Code Formatter
 - ✨ **Commitlint** - Lint your conventional commits
-
-**GitHub actions**
-
 - 🕵️‍♂️ **Code Scanning** - Code scanning with CodeQL
 
 ## Quick Setup (Production)
