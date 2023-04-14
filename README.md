@@ -13,7 +13,7 @@
 ## 📖 Description
 
 ![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)
-![Maintenance](https://img.shields.io/maintenance/yes/2021.svg)
+![Maintenance](https://img.shields.io/maintenance/yes/2023.svg)
 ![GitHub last commit](https://img.shields.io/github/last-commit/joeygoksu/prime-nestjs.svg)
 ![GitHub repo size](https://img.shields.io/github/repo-size/joeygoksu/prime-nestjs.svg)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/joeygoksu/prime-nestjs.svg)
