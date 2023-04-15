@@ -25,7 +25,11 @@
 ![GitHub commit activity the past week, 4 weeks, year](https://img.shields.io/github/commit-activity/w/joeygoksu/prime-nestjs.svg)
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/joeygoksu/prime-nestjs.svg)
 
-Introducing the NestJS boilerplate, a comprehensive and modular starting point for your next Node.js project! Built with the latest version of NestJS, a powerful and flexible framework for building efficient and scalable server-side applications, this boilerplate includes support for TypeScript, PostgreSQL, and JWT authentication out of the box. Other features include configuration support with Dotenv, RBAC and CBAC for authorization, TypeORM for database interactions, Swagger for API documentation, and Docker Compose for container orchestration. Additionally, the boilerplate comes with pre-configured linting tools and secure HTTP headers with Helmet. Simply clone the repository, install the dependencies, and start building your next great idea!
+Introducing the NestJS boilerplate - a great way to get started on your next Node.js project! It's built using the latest version of NestJS, which is a powerful and flexible framework for creating efficient and scalable server-side applications. The boilerplate includes TypeScript, PostgreSQL, and JWT authentication right out of the box, so you don't have to worry about setting those up yourself.
+
+Other awesome features include configuration support with Dotenv, RBAC and CBAC for authorization, TypeORM for interacting with databases, Swagger for API documentation, and Docker Compose for container orchestration. Plus, the boilerplate also comes with pre-configured linting tools and secure HTTP headers with Helmet.
+
+Getting started is easy - just clone the repository, install the dependencies, and you're ready to start building your next great idea!
 
 ## 🚀 Features
 
