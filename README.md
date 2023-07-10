@@ -137,4 +137,9 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-Made with ♥ by <a href="https://joeygoksu.com/">Joey Göksu</a>
+Made with ♥ by <a href="https://josephgoksu.com/">Joseph Göksu</a>
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=josephgoksu/prime-nestjs&type=Timeline)](https://star-history.com/#josephgoksu/prime-nestjs&Timeline)
+
