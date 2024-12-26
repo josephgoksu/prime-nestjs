@@ -1,145 +1,223 @@
-# NestJS Boilerplate
+# Prime NestJS Boilerplate
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![GitHub issues](https://img.shields.io/github/issues/joeygoksu/prime-nestjs.svg)
-[![Known Vulnerabilities](https://snyk.io/test/github/joeygoksu/prime-nestjs/badge.svg)](https://snyk.io/test/github/joeygoksu/prime-nestjs)
-![GitHub stars](https://img.shields.io/github/stars/joeygoksu/prime-nestjs.svg?style=social&label=Star&maxAge=2592000)
-
-<p align="left">
+<p align="center">
   <img src="documentation/prime-nestjs.jpg" width="600" alt="prime-nestjs">
 </p>
 
+## Status
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Known Vulnerabilities](https://snyk.io/test/github/josephgoksu/prime-nestjs/badge.svg)](https://snyk.io/test/github/josephgoksu/prime-nestjs)
+![Maintenance](https://img.shields.io/maintenance/yes/2024.svg)
+![GitHub last commit](https://img.shields.io/github/last-commit/josephgoksu/prime-nestjs.svg)
+
+## Project Stats
+
+![GitHub issues](https://img.shields.io/github/issues/josephgoksu/prime-nestjs.svg)
+![GitHub stars](https://img.shields.io/github/stars/josephgoksu/prime-nestjs.svg?style=social&label=Star)
+![GitHub contributors](https://img.shields.io/github/contributors/josephgoksu/prime-nestjs.svg)
+![GitHub package.json version](https://img.shields.io/github/package-json/v/josephgoksu/prime-nestjs.svg)
+![GitHub](https://img.shields.io/github/languages/top/josephgoksu/prime-nestjs.svg)
+![GitHub](https://img.shields.io/github/languages/count/josephgoksu/prime-nestjs.svg)
+![GitHub](https://img.shields.io/github/languages/code-size/josephgoksu/prime-nestjs.svg)
+![GitHub](https://img.shields.io/github/repo-size/josephgoksu/prime-nestjs.svg)
+
+## Repository Activity
+
+![GitHub](https://img.shields.io/github/commit-activity/m/josephgoksu/prime-nestjs.svg)
+![GitHub](https://img.shields.io/github/commit-activity/w/josephgoksu/prime-nestjs.svg)
+![GitHub](https://img.shields.io/github/commit-activity/y/josephgoksu/prime-nestjs.svg)
+![GitHub](https://img.shields.io/github/commit-activity/w/josephgoksu/prime-nestjs.svg)
+
 ## 📖 Description
 
-![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)
-![Maintenance](https://img.shields.io/maintenance/yes/2023.svg)
-![GitHub last commit](https://img.shields.io/github/last-commit/joeygoksu/prime-nestjs.svg)
-![GitHub repo size](https://img.shields.io/github/repo-size/joeygoksu/prime-nestjs.svg)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/joeygoksu/prime-nestjs.svg)
-![GitHub top language](https://img.shields.io/github/languages/top/joeygoksu/prime-nestjs.svg)
-![GitHub language count](https://img.shields.io/github/languages/count/joeygoksu/prime-nestjs.svg)
-![GitHub contributors](https://img.shields.io/github/contributors/joeygoksu/prime-nestjs.svg)
-![GitHub commit activity the past week, 4 weeks, year](https://img.shields.io/github/commit-activity/y/joeygoksu/prime-nestjs.svg)
-![GitHub commit activity the past week, 4 weeks, year](https://img.shields.io/github/commit-activity/m/joeygoksu/prime-nestjs.svg)
-![GitHub commit activity the past week, 4 weeks, year](https://img.shields.io/github/commit-activity/w/joeygoksu/prime-nestjs.svg)
-![GitHub package.json version](https://img.shields.io/github/package-json/v/joeygoksu/prime-nestjs.svg)
+Enterprise-grade NestJS starter kit with battle-tested architecture and security-first design. Built for teams who need a robust foundation for scalable Node.js applications with:
 
-Introducing the NestJS boilerplate - a great way to get started on your next Node.js project! It's built using the latest version of NestJS, which is a powerful and flexible framework for creating efficient and scalable server-side applications. The boilerplate includes TypeScript, PostgreSQL, and JWT authentication right out of the box, so you don't have to worry about setting those up yourself.
+### Key Features
 
-Other awesome features include configuration support with Dotenv, RBAC and CBAC for authorization, TypeORM for interacting with databases, Swagger for API documentation, and Docker Compose for container orchestration. Plus, the boilerplate also comes with pre-configured linting tools and secure HTTP headers with Helmet.
+- 📱 **NestJS** — Latest version with TypeScript support
+- 🔐 **Security**
+  - JWT Authentication with RSA256
+  - Role-Based Access Control (RBAC)
+  - Claims-Based Access Control (CBAC)
+  - Helmet for secure HTTP headers
+- 🏪 **Database**
+  - PostgreSQL with TypeORM
+  - Migration support
+  - Database schema synchronization
+- 🛠 **Development Tools**
+  - Docker Compose setup
+  - Environment configuration with Dotenv
+  - Swagger API documentation
+  - ESLint & Prettier configuration
+  - Conventional commit linting
+  - CodeQL security scanning
+  - Jest testing framework
+- 📚 **Documentation**
+  - Swagger UI
+  - Insomnia API collection
 
-Getting started is easy - just clone the repository, install the dependencies, and you're ready to start building your next great idea!
+## 🏗 Project Structure
 
-## 🚀 Features
+```
+src/
+├── auth/           # Authentication & authorization
+├── config/         # Configuration modules
+├── logger/         # Custom logging functionality
+├── tasks/          # Task management module
+├── users/          # User management module
+├── app.module.ts   # Main application module
+└── main.ts         # Application entry point
+```
 
-- 📱 **NestJS** — latest version
-- 🎉 **TypeScript** - Type checking
-- ⚙️ **Dotenv** - Supports environment variables
-- 🗝 **Authentication** - JWT, RSA256
-- 🏬 **Authorization** - RBAC, CBAC
-- 🏪 **TypeORM** - Database ORM
-- 🏪 **PostgreSQL** - Open-Source Relational Database
-- 🧠 **Configuration** - Single config for all
-- 📃 **Swagger** - API Documentation
-- 🐳 **Docker Compose** - Container Orchestration
-- 🔐 **Helmet** - secure HTTP headers
-- 😴 **Insomnia** - Insomnia config for endpoints
-- 📏 **ESLint** — Pluggable JavaScript linter
-- 💖 **Prettier** - Opinionated Code Formatter
-- ✨ **Commitlint** - Lint your conventional commits
-- 🕵️‍♂️ **Code Scanning** - Code scanning with CodeQL
+## 🚀 Getting Started
 
-## Quick Setup (Production)
+### Prerequisites
+
+- Node.js >= 20.0.0
+- npm >= 10.0.0
+- PostgreSQL
+- Docker (optional)
+
+### Quick Setup (Production)
 
 ```bash
 bash ./setup.sh
 ```
 
-## Installation (Development)
+### Development Setup
+
+1. Install dependencies:
 
 ```bash
-$ npm install
+npm install
 ```
 
-## Running the app
+2. Copy environment file:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+cp .env.example .env
 ```
 
-## Test
+3. Configure your environment variables in `.env`
+
+### Running the Application
 
 ```bash
-# unit tests
-$ npm run test
+# Development mode
+npm run start
 
-# e2e tests
-$ npm run test:e2e
+# Watch mode with hot-reload
+npm run start:dev
 
-# test coverage
-$ npm run test:cov
+# Production mode
+npm run start:prod
 ```
 
-## Endpoints
+### Database Management
 
-1. Install the insomnia app
-2. Import the `endpoints.json` file
-3. Enjoy
+```bash
+# Sync database schema
+npm run schema:sync
 
-## Generate SSL certificates
+# Generate migration
+npm run add:migration [MigrationName]
 
-1.  Generate an RSA private key, of size 2048, and output it to a file named key.pem:
+# Apply migrations
+npm run apply:migration
+
+# Revert last migration
+npm run revert:migration
+```
+
+### Docker Support
+
+```bash
+# Build containers
+npm run docker:build
+
+# Start services
+npm run docker:up
+
+# Stop services
+npm run docker:down
+```
+
+### Testing
+
+```bash
+# Unit tests
+npm run test
+
+# E2E tests
+npm run test:e2e
+
+# Test coverage
+npm run test:cov
+```
+
+## 🔒 Security Setup
+
+### SSL Certificate Generation
+
+#### 1. Generate RSA Private Key
 
 ```bash
 openssl genrsa -out private_key.pem 2048
-```
 
-```bash
-# It needs be copied&pasted from terminal manually
+# Format key for environment variable
 awk 'NF {sub(/\r/, ""); printf"%s\\n",$0;}' private_key.pem
 ```
 
-2.  Extract the public key from the key pair, which can be used in a certificate:
+#### 2. Extract Public Key
 
 ```bash
 openssl rsa -in private_key.pem -outform PEM -pubout -out public_key.pem
-```
 
-```bash
-# It needs be copied&pasted from terminal manually
+# Format key for environment variable
 awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' public_key.pem
 ```
 
+## 📝 API Documentation
+
+### Swagger UI
+
+Access the Swagger documentation at `/api` when running the application.
+
+### Insomnia Collection
+
+1. Install Insomnia
+2. Import the `endpoints.json` file
+3. Start exploring the APIs
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for more information.
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
 
-<!-- ## 🌸 Built with template -->
-
----
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+## Contributors
 
 <table>
   <tr>
-    <td align="center"><a href="https://joeygoksu.com"><img src="https://avatars.githubusercontent.com/u/6523823?v=3?s=100" width="100px;" alt=""/><br /><sub><b>Joey Goksu</b></sub></a><br />
-    <a href="https://joeygoksu.com/aboutme" title="About me">📖</a>
+    <td align="center">
+      <a href="https://josephgoksu.com">
+        <img src="https://avatars.githubusercontent.com/u/6523823?v=3?s=100" width="100px;" alt=""/>
+        <br />
+        <sub><b>Joseph Goksu</b></sub>
+      </a>
+      <br />
+      <a href="https://josephgoksu.com/aboutme" title="About me">📖</a>
     </td>
+  </tr>
 </table>
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-Made with ♥ by <a href="https://josephgoksu.com/">Joseph Göksu</a>
 
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=josephgoksu/prime-nestjs&type=Timeline)](https://star-history.com/#josephgoksu/prime-nestjs&Timeline)
-

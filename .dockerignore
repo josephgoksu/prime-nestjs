@@ -8,3 +8,4 @@ docker-compose.yml
 Dockerfile
 endpoints.json
 README.md
+.husky

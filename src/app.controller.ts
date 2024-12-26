@@ -8,7 +8,10 @@ import { Role } from './users/enums/role.enum';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService, private authService: AuthService) {}
+  constructor(
+    private readonly appService: AppService,
+    private authService: AuthService,
+  ) {}
 
   @Get()
   getHello(): string {

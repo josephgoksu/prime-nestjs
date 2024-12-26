@@ -2,13 +2,13 @@
 
 # STDERR log function
 err() {
-  echo -e "\n[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@\n" >&2
+  echo -e "\n[$(date +'%Y-%m-%dT%H:%M:%S%z')]: ${*}\n" >&2
   exit 1
 }
 
 # STDOUT log function
 log() {
-  echo -e "\n[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@\n"
+  echo -e "\n[$(date +'%Y-%m-%dT%H:%M:%S%z')]: ${*}\n"
 }
 
 # Check if Docker is installed
@@ -16,13 +16,13 @@ if ! type "docker" >/dev/null 2>&1; then
   err "⛔️ Docker not installed"
 fi
 
-# Check if Docker-compose is installed
-if ! type "docker-compose" >/dev/null 2>&1; then
-  err "⛔️ Docker-Compose not installed"
+# Check if Docker Compose is installed
+if ! docker compose version >/dev/null 2>&1; then
+  err "⛔️ Docker Compose not installed"
 fi
-log "🍀 docker and docker-compose are installed, everything looks good."
+log "🍀 Docker and Docker Compose are installed, everything looks good."
 
-# Check if NPM is installed
+# Check if NodeJS is installed
 if ! type "node" >/dev/null 2>&1; then
   err "⛔️ NodeJS not installed"
 fi
@@ -39,21 +39,44 @@ if [ $? -ne 0 ]; then
 fi
 
 log "👐 Install dependencies"
-npm install
+# First install husky separately
+npm install husky --save-dev
 if [ $? -ne 0 ]; then
-  err "⛔️ NPM install failed."
+  err "⛔️ Husky installation failed"
 fi
 
-log "👐 Create schemas: npm run schema:sync"
-npm run schema:sync
+# Then run the main npm install
+npm install --ignore-scripts
 if [ $? -ne 0 ]; then
-  err "⛔️ Schemas failed."
+  err "⛔️ NPM install failed"
 fi
 
-log "🐝 Run migrations: npm run apply:migration"
-npm run apply:migration
+# Initialize husky (with warning if it fails)
+npx husky install
 if [ $? -ne 0 ]; then
-  err "⛔️ Migrations failed."
+  log "⚠️ Husky initialization failed, but continuing..."
+fi
+
+log "👐 Starting Docker containers"
+docker compose up -d
+if [ $? -ne 0 ]; then
+  err "⛔️ Docker Compose failed to start containers"
+fi
+
+# Wait for database to be ready
+log "⏳ Waiting for database to be ready..."
+sleep 10
+
+log "🗃️ Running TypeORM schema sync"
+npx typeorm-ts-node-commonjs schema:sync -d ./src/config/database.ts
+if [ $? -ne 0 ]; then
+  err "⛔️ Schema sync failed"
+fi
+
+log "🔄 Running migrations"
+npx typeorm-ts-node-commonjs migration:run -d ./src/config/database.ts
+if [ $? -ne 0 ]; then
+  err "⛔️ Migrations failed"
 fi
 
 log "🐝 Clean repository"
@@ -62,3 +85,5 @@ touch ./README.md
 if [ $? -ne 0 ]; then
   err "⛔️ Cleaning failed."
 fi
+
+log "✅ Setup completed successfully!"

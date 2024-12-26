@@ -3,7 +3,7 @@ version: '3.9'
 services:
   app_server:
     container_name: app_server
-    image: app_server:1.0.0
+    image: app_server:2.0.0
     build:
       context: .
       target: production
@@ -11,34 +11,43 @@ services:
     command: npm run start:prod
     env_file: .env
     ports:
-      - '3000:3000'
-      - '9229:9229'
+      - '127.0.0.1:3000:3000'
+      - '127.0.0.1:9229:9229'
     networks:
       - app-network
     volumes:
-      - .:/usr/src/app
+      - .:/usr/src/app:ro
       - /usr/src/app/node_modules
     restart: unless-stopped
     depends_on:
-      - database
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   database:
     container_name: app_postgres_dev
-    image: postgres:12
+    image: postgres:16-alpine
     env_file: .env
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - app-network
     ports:
-      - '5432:5432'
+      - '127.0.0.1:5432:5432'
     healthcheck:
-      test: pg_isready
+      test: pg_isready -U postgres
       interval: 10s
       timeout: 5s
       retries: 5
 
 networks:
   app-network:
+    driver: bridge
 
 volumes:
   postgres-data:
+    driver: local

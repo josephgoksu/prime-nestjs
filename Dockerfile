@@ -1,22 +1,44 @@
-FROM node:14-alpine
+# Build stage
+FROM node:20-alpine AS builder
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+COPY tsconfig*.json ./
+COPY nest-cli.json ./
+
+# Install all dependencies (including dev dependencies)
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+# Production stage
+FROM node:20-alpine AS production
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /usr/src/app
 
-COPY package.json package-lock.json ./
-COPY ./src ./src
-COPY ./nest-cli.json ./
-COPY ./tsconfig.build.json ./
-COPY ./tsconfig.json ./
+COPY package*.json ./
 
-RUN npm install -g @nestjs/cli
-RUN npm ci --only=production
+# Install only production dependencies
+RUN npm ci --omit=dev
 
-RUN npm run build
+COPY --from=builder /usr/src/app/dist ./dist
 
-ENV PORT 3000
-ENV PORT 9229
+# Add non-root user
+RUN addgroup -g 1001 nodejs && \
+  adduser -S -u 1001 -G nodejs nodejs
+
+USER nodejs
+
+# Add these environment variables to prevent Husky installation
+ENV HUSKY=0
+ENV CI=true
+
+EXPOSE 3000
+EXPOSE 9229
 
 CMD ["node", "dist/main"]

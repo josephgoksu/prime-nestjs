@@ -1,24 +1,52 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import * as helmet from 'helmet';
+import helmet from 'helmet';
+import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.use(helmet());
-  app.enableCors();
-  app.setGlobalPrefix('api');
+  try {
+    const app = await NestFactory.create(AppModule);
+    const configService = app.get(ConfigService);
 
-  const config = new DocumentBuilder()
-    .setTitle('prime nestjs')
-    .setDescription('Boilerplate for nestjs')
-    .setVersion('1.0')
-    .addTag('api')
-    .build();
+    // Security middleware
+    app.use(helmet());
+    app.enableCors({
+      origin: configService.get('ALLOWED_ORIGINS', '*'),
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+      credentials: true,
+    });
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+    // Global prefix and pipes
+    app.setGlobalPrefix('api');
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+        forbidNonWhitelisted: true,
+      }),
+    );
 
-  await app.listen(3000);
+    // Swagger configuration
+    const config = new DocumentBuilder()
+      .setTitle('Prime Nestjs')
+      .setDescription('Boilerplate for nestjs')
+      .setVersion('2.0.0')
+      .addBearerAuth()
+      .addTag('api')
+      .build();
+
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, document);
+
+    const port = configService.get('PORT', 3000);
+    await app.listen(port);
+    console.log(`Application is running on: http://localhost:${port}`);
+  } catch (error) {
+    console.error('Error during application bootstrap:', error);
+    process.exit(1);
+  }
 }
+
 bootstrap();
