@@ -12,11 +12,7 @@ export class UsersService {
   constructor(@InjectRepository(User) private readonly usersRepository: Repository<User>) {}
 
   create(createUserDto: UsersDTO): Promise<User> {
-    const user = new User();
-
-    user.name = createUserDto.name;
-    user.email = createUserDto.email;
-    user.password = createUserDto.password;
+    const user = this.usersRepository.create(createUserDto);
 
     return this.usersRepository.save(user);
   }
