@@ -10,6 +10,8 @@ services:
       dockerfile: ./Dockerfile
     command: npm run start:prod
     env_file: .env
+    environment:
+      - POSTGRES_HOST=database
     ports:
       - '127.0.0.1:3000:3000'
       - '127.0.0.1:9229:9229'
@@ -23,7 +25,7 @@ services:
       database:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--spider", "http://localhost:3000/health"]
+      test: ["CMD", "wget", "--spider", "http://localhost:3000/health-check"]
       interval: 30s
       timeout: 10s
       retries: 3

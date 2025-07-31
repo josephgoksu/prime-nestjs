@@ -37,3 +37,8 @@ lerna-debug.log*
 # Environment Variables
 .env
 *.pem
+
+# Lock files (only use npm)
+bun.lock
+yarn.lock
+pnpm-lock.yaml

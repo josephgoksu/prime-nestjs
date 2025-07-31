@@ -1,222 +1,154 @@
-# Prime NestJS Boilerplate
+# Prime NestJS
 
 <p align="center">
   <img src="documentation/prime-nestjs.jpg" width="600" alt="prime-nestjs">
 </p>
 
-## Status
+<p align="center">
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="https://snyk.io/test/github/josephgoksu/prime-nestjs"><img src="https://snyk.io/test/github/josephgoksu/prime-nestjs/badge.svg" alt="Known Vulnerabilities"></a>
+  <img src="https://img.shields.io/github/last-commit/josephgoksu/prime-nestjs.svg" alt="GitHub last commit">
+  <img src="https://img.shields.io/github/stars/josephgoksu/prime-nestjs.svg?style=social&label=Star" alt="GitHub stars">
+</p>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Known Vulnerabilities](https://snyk.io/test/github/josephgoksu/prime-nestjs/badge.svg)](https://snyk.io/test/github/josephgoksu/prime-nestjs)
-![Maintenance](https://img.shields.io/maintenance/yes/2024.svg)
-![GitHub last commit](https://img.shields.io/github/last-commit/josephgoksu/prime-nestjs.svg)
+## Description
 
-## Project Stats
+Production-ready NestJS starter kit with enterprise-grade features for building scalable applications.
 
-![GitHub issues](https://img.shields.io/github/issues/josephgoksu/prime-nestjs.svg)
-![GitHub stars](https://img.shields.io/github/stars/josephgoksu/prime-nestjs.svg?style=social&label=Star)
-![GitHub contributors](https://img.shields.io/github/contributors/josephgoksu/prime-nestjs.svg)
-![GitHub package.json version](https://img.shields.io/github/package-json/v/josephgoksu/prime-nestjs.svg)
-![GitHub](https://img.shields.io/github/languages/top/josephgoksu/prime-nestjs.svg)
-![GitHub](https://img.shields.io/github/languages/count/josephgoksu/prime-nestjs.svg)
-![GitHub](https://img.shields.io/github/languages/code-size/josephgoksu/prime-nestjs.svg)
-![GitHub](https://img.shields.io/github/repo-size/josephgoksu/prime-nestjs.svg)
+### Features
 
-## Repository Activity
+- 🔐 **JWT Authentication** (RSA256) with Role-Based Access Control
+- 🗄️ **PostgreSQL + TypeORM** with migration support
+- 📚 **Swagger API Documentation** auto-generated at `/api`
+- 🐳 **Docker** ready with compose configuration
+- 🧪 **Testing** setup with Jest (unit & e2e)
+- 🔧 **Developer Experience** with ESLint, Prettier, Husky
+- 🛡️ **Security** with Helmet, CORS, rate limiting
+- 📊 **Monitoring** ready with built-in health checks
 
-![GitHub](https://img.shields.io/github/commit-activity/m/josephgoksu/prime-nestjs.svg)
-![GitHub](https://img.shields.io/github/commit-activity/w/josephgoksu/prime-nestjs.svg)
-![GitHub](https://img.shields.io/github/commit-activity/y/josephgoksu/prime-nestjs.svg)
-![GitHub](https://img.shields.io/github/commit-activity/w/josephgoksu/prime-nestjs.svg)
-
-## 📖 Description
-
-Enterprise-grade NestJS starter kit with battle-tested architecture and security-first design. Built for teams who need a robust foundation for scalable Node.js applications with:
-
-### Key Features
-
-- 📱 **NestJS** — Latest version with TypeScript support
-- 🔐 **Security**
-  - JWT Authentication with RSA256
-  - Role-Based Access Control (RBAC)
-  - Claims-Based Access Control (CBAC)
-  - Helmet for secure HTTP headers
-- 🏪 **Database**
-  - PostgreSQL with TypeORM
-  - Migration support
-  - Database schema synchronization
-- 🛠 **Development Tools**
-  - Docker Compose setup
-  - Environment configuration with Dotenv
-  - Swagger API documentation
-  - ESLint & Prettier configuration
-  - Conventional commit linting
-  - CodeQL security scanning
-  - Jest testing framework
-- 📚 **Documentation**
-  - Swagger UI
-  - Insomnia API collection
-
-## 🏗 Project Structure
-
-```
-src/
-├── auth/           # Authentication & authorization
-├── config/         # Configuration modules
-├── logger/         # Custom logging functionality
-├── tasks/          # Task management module
-├── users/          # User management module
-├── app.module.ts   # Main application module
-└── main.ts         # Application entry point
-```
-
-## 🚀 Getting Started
+## Quick Start
 
 ### Prerequisites
 
 - Node.js >= 20.0.0
-- npm >= 10.0.0
-- PostgreSQL
-- Docker (optional)
+- PostgreSQL (or use Docker)
 
-### Quick Setup (Production)
+### Setup
 
 ```bash
-bash ./setup.sh
-```
+# Clone repository
+git clone https://github.com/josephgoksu/prime-nestjs.git
+cd prime-nestjs
 
-### Development Setup
-
-1. Install dependencies:
-
-```bash
+# Install dependencies
 npm install
-```
 
-2. Copy environment file:
-
-```bash
+# Setup environment
 cp .env.example .env
-```
 
-3. Configure your environment variables in `.env`
-
-### Running the Application
-
-```bash
-# Development mode
-npm run start
-
-# Watch mode with hot-reload
-npm run start:dev
-
-# Production mode
-npm run start:prod
-```
-
-### Database Management
-
-```bash
-# Sync database schema
-npm run schema:sync
-
-# Generate migration
-npm run add:migration [MigrationName]
-
-# Apply migrations
-npm run apply:migration
-
-# Revert last migration
-npm run revert:migration
-```
-
-### Docker Support
-
-```bash
-# Build containers
-npm run docker:build
-
-# Start services
+# Start with Docker (recommended)
 npm run docker:up
 
-# Stop services
-npm run docker:down
+# OR start locally
+npm run start:dev
 ```
 
-### Testing
+The API will be available at `http://localhost:3000`
+
+## Development
+
+### Available Scripts
 
 ```bash
-# Unit tests
-npm run test
-
-# E2E tests
-npm run test:e2e
-
-# Test coverage
-npm run test:cov
+npm run start:dev     # Development with hot-reload
+npm run build         # Build for production
+npm run start:prod    # Run production build
+npm run test          # Run unit tests
+npm run test:e2e      # Run e2e tests
+npm run test:cov      # Generate coverage report
+npm run lint          # Lint and fix code
+npm run format        # Format code with Prettier
 ```
 
-## 🔒 Security Setup
-
-### SSL Certificate Generation
-
-#### 1. Generate RSA Private Key
+### Database
 
 ```bash
+npm run schema:sync              # Sync database schema (dev only)
+npm run migration:generate       # Generate migration from changes
+npm run migration:run            # Apply pending migrations
+npm run migration:revert         # Revert last migration
+```
+
+### Docker
+
+```bash
+npm run docker:build   # Build containers
+npm run docker:up      # Start all services
+npm run docker:down    # Stop all services
+```
+
+## Project Structure
+
+```
+src/
+├── auth/           # JWT authentication & guards
+├── config/         # App configuration
+├── tasks/          # Task management feature
+├── users/          # User management
+└── main.ts         # Application entry
+```
+
+## Environment Variables
+
+```env
+# Database
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=mysecretpassword
+POSTGRES_DB=postgres
+
+# App
+PORT=3000
+NODE_ENV=development
+
+# Auth (generate your own keys - see Security section)
+PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----..."
+PUBLIC_KEY="-----BEGIN PUBLIC KEY-----..."
+```
+
+## Security
+
+### Generate RSA Keys
+
+```bash
+# Generate private key
 openssl genrsa -out private_key.pem 2048
 
-# Format key for environment variable
+# Extract public key
+openssl rsa -in private_key.pem -pubout -out public_key.pem
+
+# Format for .env (single line)
 awk 'NF {sub(/\r/, ""); printf"%s\\n",$0;}' private_key.pem
+awk 'NF {sub(/\r/, ""); printf"%s\\n",$0;}' public_key.pem
 ```
 
-#### 2. Extract Public Key
+## API Documentation
 
-```bash
-openssl rsa -in private_key.pem -outform PEM -pubout -out public_key.pem
+- **Swagger UI**: `http://localhost:3000/api`
+- **Import to Insomnia**: Use `endpoints.json`
 
-# Format key for environment variable
-awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' public_key.pem
-```
-
-## 📝 API Documentation
-
-### Swagger UI
-
-Access the Swagger documentation at `/api` when running the application.
-
-### Insomnia Collection
-
-1. Install Insomnia
-2. Import the `endpoints.json` file
-3. Start exploring the APIs
-
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create your feature branch (`git checkout -b feature/amazing`)
+3. Commit changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing`)
 5. Open a Pull Request
 
-## 📝 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-
-## Contributors
-
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://josephgoksu.com">
-        <img src="https://avatars.githubusercontent.com/u/6523823?v=3?s=100" width="100px;" alt=""/>
-        <br />
-        <sub><b>Joseph Goksu</b></sub>
-      </a>
-      <br />
-      <a href="https://josephgoksu.com/aboutme" title="About me">📖</a>
-    </td>
-  </tr>
-</table>
+[MIT](LICENSE) © [Joseph Goksu](https://josephgoksu.com)
 
 ## Star History
 

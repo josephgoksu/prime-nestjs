@@ -4,6 +4,14 @@
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
-    "^.+\\.(t|j)s$": "ts-jest"
+    "^.+\\.ts$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^src/(.*)$": "<rootDir>/../src/$1",
+    "^@/(.*)$": "<rootDir>/../src/$1",
+    "^@auth/(.*)$": "<rootDir>/../src/auth/$1",
+    "^@users/(.*)$": "<rootDir>/../src/users/$1",
+    "^@tasks/(.*)$": "<rootDir>/../src/tasks/$1",
+    "^@config/(.*)$": "<rootDir>/../src/config/$1"
   }
 }

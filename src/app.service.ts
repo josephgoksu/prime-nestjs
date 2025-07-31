@@ -2,15 +2,15 @@ import { Body, Injectable, Req, Res } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return JSON.stringify({
+  getHello(): object {
+    return {
       message: 'Hello World!',
-    });
+    };
   }
 
-  healthCheck(): string {
-    return JSON.stringify({
+  healthCheck(): object {
+    return {
       message: 'up',
-    });
+    };
   }
 }

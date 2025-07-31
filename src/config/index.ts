@@ -1,10 +1,10 @@
-import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
-import { dbConfig } from './database';
+import { DataSourceOptions } from 'typeorm';
+import { dataSourceOptions } from './database';
 
 interface iConfig {
   env: string;
   port: number;
-  database: PostgresConnectionOptions;
+  database: DataSourceOptions;
   keys: {
     privateKey: string;
     publicKey: string;
@@ -18,5 +18,5 @@ export default (): Partial<iConfig> => ({
     privateKey: process.env.PRIVATE_KEY.replace(/\\n/gm, '\n'),
     publicKey: process.env.PUBLIC_KEY.replace(/\\n/gm, '\n'),
   },
-  database: dbConfig(),
+  database: dataSourceOptions,
 });

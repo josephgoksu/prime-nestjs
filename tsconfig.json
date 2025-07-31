@@ -11,7 +11,14 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@/*": ["src/*"],
+      "@auth/*": ["src/auth/*"],
+      "@users/*": ["src/users/*"],
+      "@tasks/*": ["src/tasks/*"],
+      "@config/*": ["src/config/*"]
+    }
   },
   "exclude": ["*.test.ts", "*.spec.ts"]
 }

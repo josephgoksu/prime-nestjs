@@ -14,12 +14,12 @@ export class AppController {
   ) {}
 
   @Get()
-  getHello(): string {
+  getHello(): object {
     return this.appService.getHello();
   }
 
   @Get('/health-check')
-  healthCheck(): string {
+  healthCheck(): object {
     return this.appService.healthCheck();
   }
 

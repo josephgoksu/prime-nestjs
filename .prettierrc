@@ -1,5 +1,5 @@
 {
-  "printWidth": 140,
+  "printWidth": 150,
   "tabWidth": 2,
   "useTabs": false,
   "semi": true,
@@ -7,5 +7,6 @@
   "quoteProps": "as-needed",
   "trailingComma": "all",
   "bracketSpacing": true,
-  "arrowParens": "always"
+  "arrowParens": "always",
+  "endOfLine": "lf"
 }

@@ -69,7 +69,7 @@
       "name": "/auth/login",
       "description": "",
       "method": "POST",
-      "body": { "mimeType": "application/json", "text": "{\n\t\"email\": \"joey@reaktif.io\",\n\t\"password\": \"example123123\"\n}" },
+      "body": { "mimeType": "application/json", "text": "{\n\t\"email\": \"joseph@reaktif.io\",\n\t\"password\": \"example123123\"\n}" },
       "parameters": [],
       "headers": [{ "name": "Content-Type", "value": "application/json", "id": "pair_bcc41b0c01ef4635b02001b48f36c0f7" }],
       "authentication": {},
@@ -94,7 +94,7 @@
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n\t\"email\": \"joey@reaktif.io\",\n\t\"name\": \"Joey Goksu\",\n\t\"password\": \"example123123\"\n}"
+        "text": "{\n\t\"email\": \"joseph@reaktif.io\",\n\t\"name\": \"joseph Goksu\",\n\t\"password\": \"example123123\"\n}"
       },
       "parameters": [],
       "headers": [{ "name": "Content-Type", "value": "application/json", "id": "pair_bcc41b0c01ef4635b02001b48f36c0f7" }],

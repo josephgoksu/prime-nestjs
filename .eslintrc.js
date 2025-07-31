@@ -15,7 +15,6 @@ module.exports = {
   rules: {
     'prettier/prettier': 'error',
     indent: 'off',
-    'no-console': 'warn',
     quotes: ['error', 'single'],
     'linebreak-style': ['error', 'unix'],
     semi: ['error', 'always'],
@@ -33,32 +32,8 @@ module.exports = {
     '@typescript-eslint/prefer-for-of': 'error',
     '@typescript-eslint/prefer-function-type': 'error',
     '@typescript-eslint/prefer-namespace-keyword': 'error',
-    '@typescript-eslint/ban-types': [
-      'error',
-      {
-        types: {
-          Object: {
-            message: 'Avoid using the `Object` type. Did you mean `object`?',
-          },
-          Function: {
-            message: 'Avoid using the `Function` type. Prefer a specific function type, like `() => void`.',
-          },
-          Boolean: {
-            message: 'Avoid using the `Boolean` type. Did you mean `boolean`?',
-          },
-          Number: {
-            message: 'Avoid using the `Number` type. Did you mean `number`?',
-          },
-          String: {
-            message: 'Avoid using the `String` type. Did you mean `string`?',
-          },
-          Symbol: {
-            message: 'Avoid using the `Symbol` type. Did you mean `symbol`?',
-          },
-        },
-      },
-    ],
-    '@typescript-eslint/quotes': ['error', 'single'],
+    // '@typescript-eslint/ban-types': 'off', // Deprecated in newer versions
+    // '@typescript-eslint/quotes': ['error', 'single'], // Use standard quotes rule instead
     '@typescript-eslint/triple-slash-reference': [
       'error',
       {
