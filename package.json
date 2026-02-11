@@ -36,7 +36,7 @@
     "prepare": "if [ -d '.git' ]; then husky install; fi"
   },
   "dependencies": {
-    "@casl/ability": "6.7.3",
+    "@casl/ability": "6.7.5",
     "@nestjs/common": "11.1.5",
     "@nestjs/config": "4.0.2",
     "@nestjs/core": "11.1.5",
