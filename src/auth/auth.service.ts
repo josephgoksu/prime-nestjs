@@ -7,6 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { compareSync, hashSync } from 'bcryptjs';
 import { UsersDTO } from 'src/users/dto/create-user.dto';
+import { LoginDTO } from './dto/login.dto';
 import { validate } from 'class-validator';
 import { LoggerService } from 'src/logger/logger.service';
 import { UsersService } from 'src/users/users.service';
@@ -20,11 +21,11 @@ export class AuthService {
   ) {}
 
   async login(body: any): Promise<Record<string, any>> {
-    const userDTO = new UsersDTO();
-    userDTO.email = body.email;
-    userDTO.password = body.password;
+    const loginDTO = new LoginDTO();
+    loginDTO.email = body.email;
+    loginDTO.password = body.password;
 
-    const errors = await validate(userDTO, { skipMissingProperties: true });
+    const errors = await validate(loginDTO);
     if (errors.length > 0) {
       throw new BadRequestException(
         errors.map((e) => Object.values(e.constraints)).flat(),

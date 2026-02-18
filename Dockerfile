@@ -39,6 +39,5 @@ ENV HUSKY=0
 ENV CI=true
 
 EXPOSE 3000
-EXPOSE 9229
 
 CMD ["node", "dist/main"]

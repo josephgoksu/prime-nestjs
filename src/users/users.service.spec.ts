@@ -50,7 +50,7 @@ describe('UsersService', () => {
         id: 1,
         ...createUserDto,
         isActive: true,
-        roles: [],
+        roles: 'standard',
       };
 
       mockRepository.save.mockResolvedValue(savedUser);
@@ -96,7 +96,7 @@ describe('UsersService', () => {
 
   describe('remove', () => {
     it('should delete a user by id', async () => {
-      const id = '1';
+      const id = 1;
       mockRepository.delete.mockResolvedValue({ affected: 1 });
 
       await service.remove(id);
