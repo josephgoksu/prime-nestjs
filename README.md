@@ -1,5 +1,7 @@
 # Prime NestJS
 
+**Stop wiring up auth, databases, and configs from scratch. Start building your product.**
+
 <p align="center">
   <img src="documentation/prime-nestjs.jpg" width="600" alt="prime-nestjs">
 </p>
@@ -9,22 +11,21 @@
   <a href="https://snyk.io/test/github/josephgoksu/prime-nestjs"><img src="https://snyk.io/test/github/josephgoksu/prime-nestjs/badge.svg" alt="Known Vulnerabilities"></a>
   <img src="https://img.shields.io/github/last-commit/josephgoksu/prime-nestjs.svg" alt="GitHub last commit">
   <img src="https://img.shields.io/github/stars/josephgoksu/prime-nestjs.svg?style=social&label=Star" alt="GitHub stars">
+  <img src="https://img.shields.io/github/forks/josephgoksu/prime-nestjs.svg?style=social&label=Fork" alt="GitHub forks">
 </p>
 
-## Description
+Production-ready NestJS starter kit. Clone it, configure your `.env`, and ship — auth, database, docs, and Docker are already done.
 
-Production-ready NestJS starter kit with enterprise-grade features for building scalable applications.
+### What's Inside
 
-### Features
-
-- 🔐 **JWT Authentication** (RSA256) with Role-Based Access Control
-- 🗄️ **PostgreSQL + TypeORM** with migration support
-- 📚 **Swagger API Documentation** auto-generated at `/api`
-- 🐳 **Docker** ready with compose configuration
-- 🧪 **Testing** setup with Jest (unit & e2e)
-- 🔧 **Developer Experience** with ESLint, Prettier, Husky
-- 🛡️ **Security** with Helmet, CORS, rate limiting
-- 📊 **Monitoring** ready with built-in health checks
+- **JWT Authentication** (RSA256) with Role-Based Access Control
+- **PostgreSQL + TypeORM** with migrations and connection pooling
+- **Swagger API Docs** auto-generated at `/api`
+- **Docker Compose** — one command to run everything
+- **Testing** with Jest (unit + e2e)
+- **Code Quality** with ESLint, Prettier, Husky, commitlint
+- **Security** hardened with Helmet and CORS
+- **Health Checks** built-in for production monitoring
 
 ## Quick Start
 
@@ -36,14 +37,9 @@ Production-ready NestJS starter kit with enterprise-grade features for building 
 ### Setup
 
 ```bash
-# Clone repository
 git clone https://github.com/josephgoksu/prime-nestjs.git
 cd prime-nestjs
-
-# Install dependencies
 npm install
-
-# Setup environment
 cp .env.example .env
 
 # Start with Docker (recommended)
@@ -53,7 +49,7 @@ npm run docker:up
 npm run start:dev
 ```
 
-The API will be available at `http://localhost:3000`
+API available at `http://localhost:3000` | Swagger docs at `http://localhost:3000/api`
 
 ## Development
 
@@ -133,11 +129,6 @@ awk 'NF {sub(/\r/, ""); printf"%s\\n",$0;}' private_key.pem
 awk 'NF {sub(/\r/, ""); printf"%s\\n",$0;}' public_key.pem
 ```
 
-## API Documentation
-
-- **Swagger UI**: `http://localhost:3000/api`
-- **Import to Insomnia**: Use `endpoints.json`
-
 ## Contributing
 
 1. Fork the repository
@@ -149,6 +140,10 @@ awk 'NF {sub(/\r/, ""); printf"%s\\n",$0;}' public_key.pem
 ## License
 
 [MIT](LICENSE) © [Joseph Goksu](https://josephgoksu.com)
+
+---
+
+If this saved you time, consider giving it a star. It helps others find it.
 
 ## Star History
 

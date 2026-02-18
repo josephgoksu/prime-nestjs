@@ -24,5 +24,5 @@ export class User {
     enum: Role,
     default: Role.standard,
   })
-  roles: Role[];
+  roles: Role;
 }

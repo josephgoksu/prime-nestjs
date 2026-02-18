@@ -8,18 +8,13 @@ services:
       context: .
       target: production
       dockerfile: ./Dockerfile
-    command: npm run start:prod
     env_file: .env
     environment:
       - POSTGRES_HOST=database
     ports:
       - '127.0.0.1:3000:3000'
-      - '127.0.0.1:9229:9229'
     networks:
       - app-network
-    volumes:
-      - .:/usr/src/app:ro
-      - /usr/src/app/node_modules
     restart: unless-stopped
     depends_on:
       database:

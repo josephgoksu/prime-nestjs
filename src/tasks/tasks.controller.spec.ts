@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
+import { TaskStatus } from './entities/task.entity';
 
 describe('TasksController', () => {
   let controller: TasksController;
@@ -38,72 +39,69 @@ describe('TasksController', () => {
   });
 
   describe('create', () => {
-    it('should create a task', () => {
+    it('should create a task', async () => {
       const createTaskDto = { title: 'Test Task', description: 'Test Description' };
-      const expectedResult = 'This action adds a new task';
+      const expectedResult = { id: 1, ...createTaskDto, status: TaskStatus.OPEN };
 
-      mockTasksService.create.mockReturnValue(expectedResult);
+      mockTasksService.create.mockResolvedValue(expectedResult);
 
-      const result = controller.create(createTaskDto);
+      const result = await controller.create(createTaskDto);
 
       expect(tasksService.create).toHaveBeenCalledWith(createTaskDto);
-      expect(result).toBe(expectedResult);
+      expect(result).toEqual(expectedResult);
     });
   });
 
   describe('findAll', () => {
-    it('should return all tasks', () => {
-      const expectedResult = 'This action returns all tasks';
+    it('should return all tasks', async () => {
+      const expectedResult = [
+        { id: 1, title: 'Task 1', status: TaskStatus.OPEN },
+        { id: 2, title: 'Task 2', status: TaskStatus.DONE },
+      ];
 
-      mockTasksService.findAll.mockReturnValue(expectedResult);
+      mockTasksService.findAll.mockResolvedValue(expectedResult);
 
-      const result = controller.findAll();
+      const result = await controller.findAll();
 
       expect(tasksService.findAll).toHaveBeenCalled();
-      expect(result).toBe(expectedResult);
+      expect(result).toEqual(expectedResult);
     });
   });
 
   describe('findOne', () => {
-    it('should return a single task', () => {
-      const id = '1';
-      const expectedResult = 'This action returns a #1 task';
+    it('should return a single task', async () => {
+      const expectedResult = { id: 1, title: 'Test Task', status: TaskStatus.OPEN };
 
-      mockTasksService.findOne.mockReturnValue(expectedResult);
+      mockTasksService.findOne.mockResolvedValue(expectedResult);
 
-      const result = controller.findOne(id);
+      const result = await controller.findOne(1);
 
       expect(tasksService.findOne).toHaveBeenCalledWith(1);
-      expect(result).toBe(expectedResult);
+      expect(result).toEqual(expectedResult);
     });
   });
 
   describe('update', () => {
-    it('should update a task', () => {
-      const id = '1';
+    it('should update a task', async () => {
       const updateTaskDto = { title: 'Updated Task' };
-      const expectedResult = 'This action updates a #1 task';
+      const expectedResult = { id: 1, title: 'Updated Task', status: TaskStatus.OPEN };
 
-      mockTasksService.update.mockReturnValue(expectedResult);
+      mockTasksService.update.mockResolvedValue(expectedResult);
 
-      const result = controller.update(id, updateTaskDto);
+      const result = await controller.update(1, updateTaskDto);
 
       expect(tasksService.update).toHaveBeenCalledWith(1, updateTaskDto);
-      expect(result).toBe(expectedResult);
+      expect(result).toEqual(expectedResult);
     });
   });
 
   describe('remove', () => {
-    it('should remove a task', () => {
-      const id = '1';
-      const expectedResult = 'This action removes a #1 task';
+    it('should remove a task', async () => {
+      mockTasksService.remove.mockResolvedValue(undefined);
 
-      mockTasksService.remove.mockReturnValue(expectedResult);
-
-      const result = controller.remove(id);
+      await controller.remove(1);
 
       expect(tasksService.remove).toHaveBeenCalledWith(1);
-      expect(result).toBe(expectedResult);
     });
   });
 });

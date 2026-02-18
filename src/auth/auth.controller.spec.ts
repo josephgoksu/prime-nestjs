@@ -1,23 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { UsersService } from 'src/users/users.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
   let authService: AuthService;
-  let usersService: UsersService;
 
   const mockAuthService = {
     login: jest.fn(),
     register: jest.fn(),
-  };
-
-  const mockUsersService = {
-    findOne: jest.fn(),
-    create: jest.fn(),
-    findAll: jest.fn(),
-    remove: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -28,16 +19,11 @@ describe('AuthController', () => {
           provide: AuthService,
           useValue: mockAuthService,
         },
-        {
-          provide: UsersService,
-          useValue: mockUsersService,
-        },
       ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
     authService = module.get<AuthService>(AuthService);
-    usersService = module.get<UsersService>(UsersService);
   });
 
   afterEach(() => {
@@ -49,38 +35,28 @@ describe('AuthController', () => {
   });
 
   describe('login', () => {
-    it('should call authService.login and return response', async () => {
+    it('should call authService.login and return result', async () => {
       const loginDto = {
         email: 'test@example.com',
         password: 'password123',
       };
 
       const authResponse = {
-        status: 200,
-        msg: {
-          email: 'test@example.com',
-          access_token: 'mock-jwt-token',
-        },
+        email: 'test@example.com',
+        access_token: 'mock-jwt-token',
       };
 
       mockAuthService.login.mockResolvedValue(authResponse);
 
-      const mockReq = {};
-      const mockRes = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
-
-      await controller.login(mockReq, mockRes, loginDto);
+      const result = await controller.login(loginDto);
 
       expect(mockAuthService.login).toHaveBeenCalledWith(loginDto);
-      expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith(authResponse.msg);
+      expect(result).toEqual(authResponse);
     });
   });
 
   describe('register', () => {
-    it('should call authService.register and return response', async () => {
+    it('should call authService.register and return result', async () => {
       const registerDto = {
         email: 'newuser@example.com',
         name: 'New User',
@@ -88,25 +64,15 @@ describe('AuthController', () => {
       };
 
       const authResponse = {
-        status: 201,
-        content: {
-          msg: 'User created with success',
-        },
+        msg: 'User created with success',
       };
 
       mockAuthService.register.mockResolvedValue(authResponse);
 
-      const mockReq = {};
-      const mockRes = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
-
-      await controller.register(mockReq, mockRes, registerDto);
+      const result = await controller.register(registerDto);
 
       expect(mockAuthService.register).toHaveBeenCalledWith(registerDto);
-      expect(mockRes.status).toHaveBeenCalledWith(201);
-      expect(mockRes.json).toHaveBeenCalledWith(authResponse.content);
+      expect(result).toEqual(authResponse);
     });
   });
 });

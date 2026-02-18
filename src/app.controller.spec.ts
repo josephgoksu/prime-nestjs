@@ -1,21 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthService } from './auth/auth.service';
 
 describe('AppController', () => {
   let appController: AppController;
   let appService: AppService;
-  let authService: AuthService;
 
   const mockAppService = {
     getHello: jest.fn(),
     healthCheck: jest.fn(),
-  };
-
-  const mockAuthService = {
-    login: jest.fn(),
-    register: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -26,16 +19,11 @@ describe('AppController', () => {
           provide: AppService,
           useValue: mockAppService,
         },
-        {
-          provide: AuthService,
-          useValue: mockAuthService,
-        },
       ],
     }).compile();
 
     appController = app.get<AppController>(AppController);
     appService = app.get<AppService>(AppService);
-    authService = app.get<AuthService>(AuthService);
   });
 
   afterEach(() => {
@@ -66,35 +54,23 @@ describe('AppController', () => {
     });
   });
 
-  describe('getEcho', () => {
+  describe('echo', () => {
     it('should echo the request body', () => {
-      const mockReq = {};
-      const mockRes = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
       const body = { message: 'test' };
 
-      appController.getEcho(mockReq, mockRes, body);
+      const result = appController.echo(body);
 
-      expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith(body);
+      expect(result).toEqual(body);
     });
   });
 
-  describe('getPremiumEcho', () => {
+  describe('premiumEcho', () => {
     it('should echo the request body for premium users', () => {
-      const mockReq = {};
-      const mockRes = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
       const body = { message: 'premium test' };
 
-      appController.getPremiumEcho(mockReq, mockRes, body);
+      const result = appController.premiumEcho(body);
 
-      expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith(body);
+      expect(result).toEqual(body);
     });
   });
 });
