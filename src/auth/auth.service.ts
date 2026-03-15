@@ -43,8 +43,11 @@ export class AuthService {
         password: hashedPassword,
       });
     } catch (error) {
-      this.logger.debug(error.message);
-      throw new ConflictException('User already exists');
+      // TypeORM unique constraint violation code
+      if (error instanceof Error && error.message?.includes('duplicate key')) {
+        throw new ConflictException('User already exists');
+      }
+      throw error;
     }
 
     return { msg: 'User created with success' };

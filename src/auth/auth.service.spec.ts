@@ -147,7 +147,7 @@ describe('AuthService', () => {
       });
     });
 
-    it('should throw ConflictException for existing user', async () => {
+    it('should throw ConflictException for duplicate key error', async () => {
       const registerDto = {
         email: 'existing@example.com',
         name: 'Existing User',
@@ -155,9 +155,23 @@ describe('AuthService', () => {
       };
 
       mockHashSync.mockReturnValue('hashedpassword');
-      mockUsersService.create.mockRejectedValue(new Error('User already exists'));
+      mockUsersService.create.mockRejectedValue(new Error('duplicate key value violates unique constraint'));
 
       await expect(service.register(registerDto)).rejects.toThrow(ConflictException);
+    });
+
+    it('should rethrow non-duplicate-key errors', async () => {
+      const registerDto = {
+        email: 'newuser@example.com',
+        name: 'New User',
+        password: 'password123',
+      };
+
+      mockHashSync.mockReturnValue('hashedpassword');
+      const dbError = new Error('connection refused');
+      mockUsersService.create.mockRejectedValue(dbError);
+
+      await expect(service.register(registerDto)).rejects.toThrow(dbError);
     });
   });
 });
