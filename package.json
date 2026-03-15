@@ -43,7 +43,7 @@
     "@nestjs/jwt": "11.0.0",
     "@nestjs/mapped-types": "2.1.0",
     "@nestjs/passport": "11.0.5",
-    "@nestjs/platform-express": "11.1.5",
+    "@nestjs/platform-express": "11.1.16",
     "@nestjs/schedule": "6.0.0",
     "@nestjs/swagger": "11.2.6",
     "@nestjs/typeorm": "11.0.0",
