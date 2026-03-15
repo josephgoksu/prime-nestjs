@@ -76,6 +76,7 @@ describe('AuthService', () => {
         email: 'test@example.com',
         password: 'hashedpassword',
         name: 'Test User',
+        isActive: true,
       };
 
       mockUsersService.findOne.mockResolvedValue(mockUser);
@@ -114,10 +115,31 @@ describe('AuthService', () => {
         email: 'test@example.com',
         password: 'hashedpassword',
         name: 'Test User',
+        isActive: true,
       };
 
       mockUsersService.findOne.mockResolvedValue(mockUser);
       mockCompareSync.mockReturnValue(false);
+
+      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should throw UnauthorizedException for disabled account', async () => {
+      const loginDto = {
+        email: 'test@example.com',
+        password: 'password123',
+      };
+
+      const mockUser = {
+        id: 1,
+        email: 'test@example.com',
+        password: 'hashedpassword',
+        name: 'Test User',
+        isActive: false,
+      };
+
+      mockUsersService.findOne.mockResolvedValue(mockUser);
+      mockCompareSync.mockReturnValue(true);
 
       await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
     });
@@ -147,7 +169,7 @@ describe('AuthService', () => {
       });
     });
 
-    it('should throw ConflictException for duplicate key error', async () => {
+    it('should throw ConflictException for duplicate key error message', async () => {
       const registerDto = {
         email: 'existing@example.com',
         name: 'Existing User',
@@ -156,6 +178,20 @@ describe('AuthService', () => {
 
       mockHashSync.mockReturnValue('hashedpassword');
       mockUsersService.create.mockRejectedValue(new Error('duplicate key value violates unique constraint'));
+
+      await expect(service.register(registerDto)).rejects.toThrow(ConflictException);
+    });
+
+    it('should throw ConflictException for PostgreSQL error code 23505', async () => {
+      const registerDto = {
+        email: 'existing@example.com',
+        name: 'Existing User',
+        password: 'password123',
+      };
+
+      mockHashSync.mockReturnValue('hashedpassword');
+      const pgError = Object.assign(new Error('unique violation'), { code: '23505' });
+      mockUsersService.create.mockRejectedValue(pgError);
 
       await expect(service.register(registerDto)).rejects.toThrow(ConflictException);
     });

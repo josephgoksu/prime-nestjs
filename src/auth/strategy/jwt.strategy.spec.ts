@@ -10,6 +10,7 @@ describe('JwtStrategy', () => {
 
   const mockUsersService = {
     findOne: jest.fn(),
+    findById: jest.fn(),
   };
 
   const mockConfigService = {
@@ -47,18 +48,18 @@ describe('JwtStrategy', () => {
         roles: Role.standard,
       };
 
-      mockUsersService.findOne.mockResolvedValue(mockUser);
+      mockUsersService.findById.mockResolvedValue(mockUser);
 
       const result = await strategy.validate({ sub: 1, email: 'test@example.com' });
 
       expect(result).toEqual(mockUser);
-      expect(mockUsersService.findOne).toHaveBeenCalledWith('test@example.com');
+      expect(mockUsersService.findById).toHaveBeenCalledWith(1);
     });
 
     it('should throw UnauthorizedException when user not found', async () => {
-      mockUsersService.findOne.mockResolvedValue(null);
+      mockUsersService.findById.mockResolvedValue(null);
 
-      await expect(strategy.validate({ sub: 1, email: 'missing@example.com' })).rejects.toThrow(UnauthorizedException);
+      await expect(strategy.validate({ sub: 999, email: 'missing@example.com' })).rejects.toThrow(UnauthorizedException);
     });
 
     it('should throw UnauthorizedException when user is inactive', async () => {
@@ -70,7 +71,7 @@ describe('JwtStrategy', () => {
         roles: Role.standard,
       };
 
-      mockUsersService.findOne.mockResolvedValue(inactiveUser);
+      mockUsersService.findById.mockResolvedValue(inactiveUser);
 
       await expect(strategy.validate({ sub: 1, email: 'test@example.com' })).rejects.toThrow(UnauthorizedException);
     });

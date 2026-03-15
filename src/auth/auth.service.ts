@@ -25,6 +25,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    if (!userDetails.isActive) {
+      throw new UnauthorizedException('Account is disabled');
+    }
+
     return {
       email: dto.email,
       access_token: this.jwtService.sign({
@@ -43,8 +47,9 @@ export class AuthService {
         password: hashedPassword,
       });
     } catch (error) {
-      // TypeORM unique constraint violation code
-      if (error instanceof Error && error.message?.includes('duplicate key')) {
+      const isUniqueViolation =
+        (error as Record<string, unknown>)?.code === '23505' || (error instanceof Error && error.message?.includes('duplicate key'));
+      if (isUniqueViolation) {
         throw new ConflictException('User already exists');
       }
       throw error;

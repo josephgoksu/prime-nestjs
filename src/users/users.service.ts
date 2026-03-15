@@ -30,6 +30,12 @@ export class UsersService {
     });
   }
 
+  findById(id: number): Promise<User | null> {
+    return this.usersRepository.findOne({
+      where: { id },
+    });
+  }
+
   async remove(id: number): Promise<void> {
     await this.usersRepository.delete(id);
   }

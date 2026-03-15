@@ -91,6 +91,27 @@ describe('UsersService', () => {
     });
   });
 
+  describe('findById', () => {
+    it('should return a user by id', async () => {
+      const user = { id: 1, name: 'Test User', email: 'test@example.com', password: 'hashedpassword' };
+
+      mockRepository.findOne.mockResolvedValue(user);
+
+      const result = await service.findById(1);
+
+      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(result).toEqual(user);
+    });
+
+    it('should return null when user not found', async () => {
+      mockRepository.findOne.mockResolvedValue(null);
+
+      const result = await service.findById(999);
+
+      expect(result).toBeNull();
+    });
+  });
+
   describe('remove', () => {
     it('should delete a user by id', async () => {
       const id = 1;

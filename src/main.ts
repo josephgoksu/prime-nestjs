@@ -15,9 +15,9 @@ async function bootstrap() {
     // Security middleware
     app.use(helmet());
 
-    const allowedOrigins = configService.get<string>('allowedOrigins', 'http://localhost:3000');
+    const allowedOrigins = configService.get<string[]>('allowedOrigins', ['http://localhost:3000']);
     app.enableCors({
-      origin: allowedOrigins.split(',').map((o) => o.trim()),
+      origin: allowedOrigins,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
       credentials: true,
     });

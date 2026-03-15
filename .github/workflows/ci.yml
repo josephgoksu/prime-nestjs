@@ -26,7 +26,10 @@ jobs:
         run: npm run lint
 
       - name: Build
+        env:
+          PRIVATE_KEY: "-----BEGIN RSA PRIVATE KEY-----\nstub\n-----END RSA PRIVATE KEY-----"
+          PUBLIC_KEY: "-----BEGIN PUBLIC KEY-----\nstub\n-----END PUBLIC KEY-----"
         run: npm run build
 
-      - name: Test
+      - name: Unit tests
         run: npm test
