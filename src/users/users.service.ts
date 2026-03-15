@@ -4,9 +4,6 @@ import { Repository } from 'typeorm';
 import { UsersDTO } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 
-// This should be a real class/interface representing a user entity
-// export type User = any;
-
 @Injectable()
 export class UsersService {
   constructor(@InjectRepository(User) private readonly usersRepository: Repository<User>) {}
@@ -27,7 +24,7 @@ export class UsersService {
     });
   }
 
-  findOne(email: string): Promise<User> {
+  findOne(email: string): Promise<User | null> {
     return this.usersRepository.findOne({
       where: { email },
     });

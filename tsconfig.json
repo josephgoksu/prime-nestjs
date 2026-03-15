@@ -6,19 +6,20 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2017",
+    "target": "es2022",
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "strictBindCallApply": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@/*": ["src/*"],
-      "@auth/*": ["src/auth/*"],
-      "@users/*": ["src/users/*"],
-      "@tasks/*": ["src/tasks/*"],
-      "@config/*": ["src/config/*"]
+      "src/*": ["src/*"]
     }
   },
-  "exclude": ["*.test.ts", "*.spec.ts"]
+  "exclude": ["node_modules", "dist"]
 }

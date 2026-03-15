@@ -17,6 +17,8 @@ export class RolesGuard implements CanActivate {
       return false;
     }
 
-    return requiredRoles.some((role) => user.roles === role);
+    // Supports both scalar role (current) and array roles (future)
+    const userRoles = Array.isArray(user.roles) ? user.roles : [user.roles];
+    return requiredRoles.some((role) => userRoles.includes(role));
   }
 }

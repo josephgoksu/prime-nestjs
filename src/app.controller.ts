@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
 import { JwtAuthGuard } from './auth/strategy/jwt-auth.guard';
 import { RolesGuard } from './auth/strategy/roles.guard';
@@ -10,24 +10,25 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getHello(): object {
+  getHello(): { message: string } {
     return this.appService.getHello();
   }
 
   @Get('/health-check')
-  healthCheck(): object {
+  healthCheck(): { message: string } {
     return this.appService.healthCheck();
   }
 
   @Post('/echo')
-  echo(@Body() body) {
+  @UseGuards(JwtAuthGuard)
+  echo(@Body() body: Record<string, unknown>) {
     return body;
   }
 
   @Post('/premium-echo')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.premium)
-  premiumEcho(@Body() body) {
+  premiumEcho(@Body() body: Record<string, unknown>) {
     return body;
   }
 }

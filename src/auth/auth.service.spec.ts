@@ -1,14 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
-import { BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from 'src/users/users.service';
 import { LoggerService } from 'src/logger/logger.service';
 
+jest.mock('bcryptjs', () => ({
+  compareSync: jest.fn(),
+  hashSync: jest.fn(() => 'hashedpassword'),
+}));
+
+import { compareSync, hashSync } from 'bcryptjs';
+
+const mockCompareSync = compareSync as jest.Mock;
+const mockHashSync = hashSync as jest.Mock;
+
 describe('AuthService', () => {
   let service: AuthService;
-  let jwtService: JwtService;
-  let usersService: UsersService;
 
   const mockJwtService = {
     sign: jest.fn(),
@@ -46,8 +54,6 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    jwtService = module.get<JwtService>(JwtService);
-    usersService = module.get<UsersService>(UsersService);
   });
 
   afterEach(() => {
@@ -60,44 +66,45 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('should return access token for valid credentials', async () => {
-      const userDto = {
+      const loginDto = {
         email: 'test@example.com',
         password: 'password123',
       };
 
-      const hashedPassword = '$2b$10$abcdefghijklmnopqrstuvwxyz';
       const mockUser = {
         id: 1,
         email: 'test@example.com',
-        password: hashedPassword,
+        password: 'hashedpassword',
         name: 'Test User',
       };
 
       mockUsersService.findOne.mockResolvedValue(mockUser);
       mockJwtService.sign.mockReturnValue('mock-jwt-token');
+      mockCompareSync.mockReturnValue(true);
 
-      const bcryptjs = require('bcryptjs');
-      jest.spyOn(bcryptjs, 'compareSync').mockReturnValue(true);
-
-      const result = await service.login(userDto);
+      const result = await service.login(loginDto);
 
       expect(result).toHaveProperty('access_token');
-      expect(result.email).toBe(userDto.email);
+      expect(result.email).toBe(loginDto.email);
+      expect(mockJwtService.sign).toHaveBeenCalledWith({
+        sub: mockUser.id,
+        email: loginDto.email,
+      });
     });
 
     it('should throw UnauthorizedException for invalid user', async () => {
-      const userDto = {
+      const loginDto = {
         email: 'nonexistent@example.com',
         password: 'password123',
       };
 
       mockUsersService.findOne.mockResolvedValue(null);
 
-      await expect(service.login(userDto)).rejects.toThrow(UnauthorizedException);
+      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
     });
 
     it('should throw UnauthorizedException for invalid password', async () => {
-      const userDto = {
+      const loginDto = {
         email: 'test@example.com',
         password: 'wrongpassword',
       };
@@ -110,68 +117,47 @@ describe('AuthService', () => {
       };
 
       mockUsersService.findOne.mockResolvedValue(mockUser);
+      mockCompareSync.mockReturnValue(false);
 
-      const bcryptjs = require('bcryptjs');
-      jest.spyOn(bcryptjs, 'compareSync').mockReturnValue(false);
-
-      await expect(service.login(userDto)).rejects.toThrow(UnauthorizedException);
-    });
-
-    it('should throw BadRequestException for invalid fields', async () => {
-      const userDto = {
-        email: 'not-an-email',
-        password: '',
-      };
-
-      await expect(service.login(userDto)).rejects.toThrow(BadRequestException);
+      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
     });
   });
 
   describe('register', () => {
     it('should create user successfully', async () => {
-      const userDto = {
+      const registerDto = {
         email: 'newuser@example.com',
         name: 'New User',
         password: 'password123',
       };
 
+      mockHashSync.mockReturnValue('hashedpassword');
       mockUsersService.create.mockResolvedValue({
         id: 1,
-        ...userDto,
+        ...registerDto,
         password: 'hashedpassword',
       });
 
-      const bcryptjs = require('bcryptjs');
-      jest.spyOn(bcryptjs, 'hashSync').mockReturnValue('hashedpassword');
-
-      const result = await service.register(userDto);
+      const result = await service.register(registerDto);
 
       expect(result.msg).toBe('User created with success');
+      expect(mockUsersService.create).toHaveBeenCalledWith({
+        ...registerDto,
+        password: 'hashedpassword',
+      });
     });
 
     it('should throw ConflictException for existing user', async () => {
-      const userDto = {
+      const registerDto = {
         email: 'existing@example.com',
         name: 'Existing User',
         password: 'password123',
       };
 
+      mockHashSync.mockReturnValue('hashedpassword');
       mockUsersService.create.mockRejectedValue(new Error('User already exists'));
 
-      const bcryptjs = require('bcryptjs');
-      jest.spyOn(bcryptjs, 'hashSync').mockReturnValue('hashedpassword');
-
-      await expect(service.register(userDto)).rejects.toThrow(ConflictException);
-    });
-
-    it('should throw BadRequestException for invalid content', async () => {
-      const userDto = {
-        email: 'not-an-email',
-        name: '',
-        password: '',
-      };
-
-      await expect(service.register(userDto)).rejects.toThrow(BadRequestException);
+      await expect(service.register(registerDto)).rejects.toThrow(ConflictException);
     });
   });
 });

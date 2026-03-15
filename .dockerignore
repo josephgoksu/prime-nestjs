@@ -2,6 +2,7 @@ setup.sh
 test
 showcase
 dist
+node_modules
 .env.example
 .gitignore
 docker-compose.yml
@@ -9,3 +10,4 @@ Dockerfile
 endpoints.json
 README.md
 .husky
+.git

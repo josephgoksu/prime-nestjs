@@ -36,7 +36,13 @@ lerna-debug.log*
 
 # Environment Variables
 .env
+.env.local
+.env.*.local
+.env.production
 *.pem
+*.key
+*.crt
+*.p12
 
 # Lock files (only use npm)
 bun.lock
