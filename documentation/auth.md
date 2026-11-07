@@ -1,36 +1,88 @@
-# Auth
+# Authentication
 
-## Sequence Diagram
+prime-nestjs signs short-lived access tokens (JWT, RS256) and pairs each one with a rotating refresh token. Clients send the access token on every request and use the refresh token to get a new pair when the access token expires.
+
+## Endpoints
+
+| Method | Path | Auth | What it does |
+|---|---|---|---|
+| `POST` | `/auth/register` | none | Creates a user (201). Log in afterwards to get tokens |
+| `POST` | `/auth/login` | none | Checks the password and returns a token pair |
+| `POST` | `/auth/refresh` | refresh token in the body | Returns a new pair and revokes the token it was given |
+| `POST` | `/auth/logout` | refresh token in the body | Revokes the session (the token family). Returns 204 |
+| `GET` | `/auth/me` | access token | Returns the signed-in user |
+
+`register` and `login` use the stricter `THROTTLE_AUTH_LIMIT` rate limit. Emails are trimmed and lowercased, so they match case-insensitively.
+
+`login` and `refresh` return a token pair:
+
+```json
+{
+  "email": "ada@example.com",
+  "token_type": "Bearer",
+  "access_token": "eyJhbGciOiJSUzI1NiIs...",
+  "expires_in": 900,
+  "refresh_token": "3f6c1e0a-....9Qm2",
+  "refresh_token_expires_at": "2026-12-07T10:00:00.000Z"
+}
+```
+
+## Login and refresh
 
 ```mermaid
-
 sequenceDiagram
   autonumber
-  participant C as Client #1
-  participant AC as AuthController #2
-  participant AS as AuthService #3
-  participant US as UsersService #4
+  participant C as Client
+  participant API as AuthController
+  participant Auth as AuthService
+  participant DB as Postgres
 
-  #1: Client - The user/client who sends the request to the server for login or register.
-  #2: AuthController - The controller that handles the incoming requests from the client, performs necessary validations and calls the AuthService to perform the login or register operation.
-  #3: AuthService - The service layer that processes the login or register request and performs necessary business logic such as authentication, generating JWT token, and validating user information using the UsersService.
-  #4: UsersService - The service layer that communicates with the database and fetches or modifies user information.
+  C->>API: POST /auth/login {email, password}
+  API->>Auth: login()
+  Auth->>DB: find user (with password hash)
+  Auth->>Auth: verify scrypt hash (off the event loop)
+  Auth->>DB: store sha256(refresh secret), new family
+  Auth-->>C: access_token (15 min) + refresh_token (30 days)
 
-  #1: C->>+AC: Sends login or register request to AuthController.
-  #2: AC->>+AS: Calls login or register function of AuthService.
-  #3: AS->>+US: Calls UsersService function to fetch or modify user information.
-  Note over US: UsersService communicates<br>with the database to fetch or<br>modify user information.
+  Note over C: later, the access token expires
 
-  alt Valid user
-    #4: US-->>-AS: Returns user information.
-    #3: AS-->>-AC: Returns success message and JWT token.
-    #2: AC-->>-C: Returns success message and JWT token.
-    Note over C: Receives success message and JWT token.
-  else Invalid user
-    #4: US-->>-AS: Returns null.
-    #3: AS-->>-AC: Returns error message.
-    #2: AC-->>-C: Returns error message.
-    Note over C: Receives error message.
-  end
-
+  C->>API: POST /auth/refresh {refresh_token}
+  API->>Auth: refresh()
+  Auth->>DB: lock the family, revoke the old token, store the new one
+  Auth-->>C: new access_token + new refresh_token
 ```
+
+## How the tokens work
+
+- **Access tokens** are RS256 JWTs. The private key signs and the public key verifies, so another service can verify tokens with only the public key. `JWT_EXPIRES_IN` sets the lifetime (default `15m`).
+- **Refresh tokens** are opaque strings, `<id>.<secret>`. The database stores only the SHA-256 of the secret, so a database leak does not hand out working tokens.
+- **Rotation**: every refresh revokes the token it used and issues a new one in the same family. `REFRESH_TOKEN_TTL_DAYS` (default 30) is a sliding lifetime: each refresh starts a new period, so it limits how long a session can stay idle.
+- **Reuse detection**: if a token that was already rotated is presented again more than 10 seconds later, the whole family is revoked and that session must log in again. The 10 second window lets a browser with two tabs refresh at the same moment without signing the user out.
+- **Concurrency**: rotation and logout lock the family with a Postgres advisory lock, so two parallel refreshes cannot both succeed.
+- Expired and revoked tokens are deleted by a daily cron job.
+
+## Passwords
+
+Passwords are hashed with scrypt (`N=2^14, r=8, p=5`) from `node:crypto`. Hashing runs on the libuv thread pool, so a burst of logins does not block other requests. Hashes from older versions of the project (bcrypt) are still accepted and are re-hashed with scrypt on the next successful login. Unknown emails are checked against a dummy hash so that response time does not reveal which emails exist.
+
+## Roles
+
+Users have a global role, `standard` (default) or `premium`. Protect a route with `RolesGuard`:
+
+```ts
+@Post('premium-echo')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.premium)
+premiumEcho(@Body() body: Record<string, unknown>) { ... }
+```
+
+Roles inside an organization (`owner`, `admin`, `member`) are separate. See [organizations.md](./organizations.md).
+
+## Keys
+
+```bash
+npm run keys:generate              # fills PRIVATE_KEY and PUBLIC_KEY in .env if they are unset
+npm run keys:generate -- --force   # rotates them
+```
+
+The app refuses to start when the keys are shorter than 2048 bits or do not belong together. After a rotation, existing access tokens stop working and clients get new ones with their refresh token.

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="1200" height="360" role="img" aria-label="prime-nestjs">
+<defs>
+  <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d5dfc"/><stop offset="1" stop-color="#2a78d6"/></linearGradient>
+  <linearGradient id="g2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#2a78d6"/><stop offset="1" stop-color="#1baf7a"/></linearGradient>
+</defs>
+<rect width="1200" height="360" rx="20" fill="#fcfcfb"/>
+<g fill="none" stroke-linejoin="round">
+  <path d="M213.79,85.36Q230.00,76.00 246.21,85.36L303.85,118.64Q320.07,128.00 320.07,146.72L320.07,213.28Q320.07,232.00 303.85,241.36L246.21,274.64Q230.00,284.00 213.79,274.64L156.15,241.36Q139.93,232.00 139.93,213.28L139.93,146.72Q139.93,128.00 156.15,118.64Z" stroke="url(#g1)" stroke-width="12.5"/>
+  <path d="M219.30,117.54Q230.00,111.36 240.70,117.54L278.74,139.50Q289.44,145.68 289.44,158.04L289.44,201.96Q289.44,214.32 278.74,220.50L240.70,242.46Q230.00,248.64 219.30,242.46L181.26,220.50Q170.56,214.32 170.56,201.96L170.56,158.04Q170.56,145.68 181.26,139.50Z" stroke="url(#g2)" stroke-width="12.5"/>
+  <path d="M224.81,149.72Q230.00,146.72 235.19,149.72L253.63,160.36Q258.82,163.36 258.82,169.35L258.82,190.65Q258.82,196.64 253.63,199.64L235.19,210.28Q230.00,213.28 224.81,210.28L206.37,199.64Q201.18,196.64 201.18,190.65L201.18,169.35Q201.18,163.36 206.37,160.36Z" fill="#f26b3a" stroke="none"/>
+</g>
+<text x="378" y="172" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="76" font-weight="800" letter-spacing="-2" fill="#111827">prime<tspan fill="#52514e" font-weight="500">-nestjs</tspan></text>
+<text x="382" y="226" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="26" fill="#52514e">Production-ready NestJS 12 starter for B2B and B2C APIs</text>
+<text x="382" y="270" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" fill="#52514e" opacity="0.85">Auth · Organizations · Postgres · Observability · Docker</text>
+</svg>

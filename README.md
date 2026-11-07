@@ -1,155 +1,154 @@
-# Prime NestJS
-
-**Stop wiring up auth, databases, and configs from scratch. Start building your product.**
-
 <p align="center">
-  <img src="documentation/prime-nestjs.jpg" width="600" alt="prime-nestjs">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="documentation/assets/banner-dark.svg">
+    <img src="documentation/assets/banner-light.svg" width="760" alt="prime-nestjs: production-ready NestJS 12 starter for B2B and B2C APIs">
+  </picture>
 </p>
 
 <p align="center">
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <a href="https://snyk.io/test/github/josephgoksu/prime-nestjs"><img src="https://snyk.io/test/github/josephgoksu/prime-nestjs/badge.svg" alt="Known Vulnerabilities"></a>
-  <img src="https://img.shields.io/github/last-commit/josephgoksu/prime-nestjs.svg" alt="GitHub last commit">
-  <img src="https://img.shields.io/github/stars/josephgoksu/prime-nestjs.svg?style=social&label=Star" alt="GitHub stars">
-  <img src="https://img.shields.io/github/forks/josephgoksu/prime-nestjs.svg?style=social&label=Fork" alt="GitHub forks">
+  <a href="https://github.com/josephgoksu/prime-nestjs/actions/workflows/ci.yml"><img src="https://github.com/josephgoksu/prime-nestjs/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <img src="https://img.shields.io/badge/NestJS-12-blue" alt="NestJS 12">
+  <img src="https://img.shields.io/badge/node-22.13%2B%20%7C%2024%20LTS-blue" alt="Node 22.13+ or 24 LTS">
+  <img src="https://img.shields.io/badge/npm%20audit-0%20vulnerabilities-brightgreen" alt="npm audit: 0 vulnerabilities">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
 </p>
 
-Production-ready NestJS starter kit. Clone it, configure your `.env`, and ship — auth, database, docs, and Docker are already done.
+A NestJS API starter you can put in production: authentication with rotating refresh tokens, organizations with roles for B2B apps, Postgres with migrations, rate limiting, structured logs and tracing. It stays small: 264 production packages and no known vulnerabilities.
 
-### What's Inside
+## What you get
 
-- **JWT Authentication** (RSA256) with Role-Based Access Control
-- **PostgreSQL + TypeORM** with migrations and connection pooling
-- **Swagger API Docs** auto-generated at `/api`
-- **Docker Compose** — one command to run everything
-- **Testing** with Vitest (unit + e2e)
-- **Code Quality** with ESLint, Prettier, Husky, commitlint
-- **Security** hardened with Helmet and CORS
-- **Health Checks** built-in for production monitoring
+**Auth**
+- RS256 access tokens (15 min) with rotating refresh tokens, reuse detection and logout
+- scrypt password hashing off the event loop; old bcrypt hashes upgrade on login
+- Global roles (`RolesGuard`) and per-organization roles
 
-## Quick Start
+**B2B and B2C**
+- Organizations with `owner`, `admin` and `member` roles, safe against concurrent role changes
+- Personal data by default; send `X-Organization-Id` to work on an organization's data
+- Non-members get 404, so tenant ids cannot be probed
 
-### Prerequisites
+**Data**
+- PostgreSQL with TypeORM 1, versioned migrations, connection pooling, optional SSL
+- Every query scoped to its owner or organization
 
-- Node.js 22.13+ or 24.11+ (24 LTS recommended)
-- PostgreSQL (or use Docker)
+**Production**
+- Environment validated at startup, including the JWT key pair
+- Rate limiting per client, stricter on login and registration
+- Liveness and readiness probes, graceful shutdown
+- JSON logs with request ids and secret redaction
+- OpenTelemetry tracing for HTTP and Postgres, loaded only when you turn it on
+- Docker image on Node 24 Alpine, non-root
 
-### Setup
+**Developer experience**
+- `./setup.sh` from clone to running API in one command
+- Swagger at `/api`, Vitest unit and e2e tests, ESLint 9, Prettier, commitlint
+- CI on Node 22 and 24 with a real Postgres, CodeQL
+- `AGENTS.md` for coding agents
+
+## Quick start
+
+Needs Node.js 24 LTS (or 22.13+) and Docker.
 
 ```bash
 git clone https://github.com/josephgoksu/prime-nestjs.git
 cd prime-nestjs
-./setup.sh            # .env, JWT keys, npm ci, Postgres in Docker, migrations
+./setup.sh          # .env, JWT keys, npm ci, Postgres in Docker, migrations
 npm run start:dev
 ```
 
-`./setup.sh --docker` runs the app in Docker too, and `./setup.sh --no-docker` uses the Postgres set in `.env`. The script keeps an existing `.env` and existing keys, so it is safe to run again.
+Open `http://localhost:3000/api` for Swagger. `./setup.sh --docker` runs the API in Docker too, and `./setup.sh --no-docker` uses your own Postgres from `.env`.
 
-Without the script (for example on Windows without bash):
+Without bash (for example on Windows):
 
 ```bash
 npm ci
 cp .env.example .env
-npm run keys:generate     # writes PRIVATE_KEY and PUBLIC_KEY to .env
+npm run keys:generate
 docker compose up -d --wait database
 npm run migration:run
 npm run start:dev
 ```
 
-API available at `http://localhost:3000` | Swagger docs at `http://localhost:3000/api`
-
-## Development
-
-### Available Scripts
+Try it:
 
 ```bash
-npm run start:dev     # Development with hot-reload
-npm run build         # Build for production
-npm run start:prod    # Run production build
-npm run test          # Run unit tests
-npm run test:e2e      # Run e2e tests
-npm run test:cov      # Generate coverage report
-npm run lint          # Lint and fix code
-npm run format        # Format code with Prettier
+curl -X POST localhost:3000/auth/register -H 'content-type: application/json' \
+  -d '{"name":"Ada","email":"ada@example.com","password":"correct-horse-battery"}'
+curl -X POST localhost:3000/auth/login -H 'content-type: application/json' \
+  -d '{"email":"ada@example.com","password":"correct-horse-battery"}'
 ```
 
-### Database
+## Benchmarks
 
-```bash
-npm run migration:run                                   # Apply pending migrations
-npm run migration:generate -- src/migrations/AddThing   # Generate a migration from entity changes
-npm run migration:revert                                # Revert the last migration
-npm run schema:sync                                     # Dev only: sync schema without migrations
-```
+The NestJS 12 version against the previous NestJS 11 version, on the same machine:
 
-Register each new migration class in `src/migrations/index.ts`. A unit test fails if one is missing. Set `DB_RUN_MIGRATIONS=true` to apply pending migrations on startup (Docker Compose does this).
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="documentation/benchmarks/before-after-dark.svg">
+  <img src="documentation/benchmarks/before-after-light.svg" alt="Before and after: login throughput up from 15 to 26.5 requests per second; health check p99 while logins run down from 4,277 ms to 9 ms; health check and authenticated read throughput lower because every request now does more work">
+</picture>
 
-### Docker
+Password hashing no longer blocks the event loop, so a burst of logins does not stall every other request. Simple endpoints are slower than before because each request now goes through rate limiting, request logging and tenant scoping.
 
-```bash
-npm run docker:build   # Build containers
-npm run docker:up      # Start all services
-npm run docker:down    # Stop all services
-```
+Production dependencies compared with other popular NestJS boilerplates:
 
-## Project Structure
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="documentation/benchmarks/boilerplates-dark.svg">
+  <img src="documentation/benchmarks/boilerplates-light.svg" alt="prime-nestjs has 0 known vulnerabilities, 264 production packages and a 170 MB install, compared with 223 to 554 packages, 91 to 531 MB and 0 to 35 vulnerabilities for five other boilerplates">
+</picture>
+
+Method, raw numbers, a feature comparison and how to rerun everything: [documentation/BENCHMARKS.md](documentation/BENCHMARKS.md).
+
+## Project structure
 
 ```
 src/
-├── auth/           # JWT authentication & guards
-├── config/         # App configuration
-├── tasks/          # Task management feature
-├── users/          # User management
-└── main.ts         # Application entry
+├── auth/            # login, register, refresh tokens, JWT strategy, guards
+├── organizations/   # organizations, memberships, OrganizationGuard
+├── tasks/           # example feature: personal or organization tasks
+├── users/           # User entity and service
+├── health/          # liveness and readiness probes
+├── logger/          # pino logger, request logging
+├── config/          # env loading and validation, TypeORM data source
+├── migrations/      # versioned schema migrations
+├── instrumentation.ts / tracing.ts   # OpenTelemetry, off unless configured
+└── main.ts
+test/                # e2e tests against a real Postgres
+scripts/             # key generation, benchmarks
 ```
 
-## Environment Variables
+`src/tasks/` is the pattern to copy for your own features.
 
-```env
-# Database
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=mysecretpassword
-POSTGRES_DB=postgres
-
-# App
-PORT=3000
-NODE_ENV=development
-
-# Auth (generate your own keys - see Security section)
-PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----..."
-PUBLIC_KEY="-----BEGIN PUBLIC KEY-----..."
-```
-
-## Security
-
-### Generate RSA Keys
+## Scripts
 
 ```bash
-npm run keys:generate               # fills PRIVATE_KEY/PUBLIC_KEY in .env if unset
-npm run keys:generate -- --force    # rotates them: current access tokens stop working, clients renew them with their refresh token
-npm run -s keys:generate -- --print # prints them, for a secret manager (-s keeps npm's banner out of the output)
+npm run start:dev        # watch mode
+npm run build            # production build
+npm run start:prod       # run the build
+npm test                 # unit tests
+npm run test:e2e         # e2e tests (needs Postgres)
+npm run lint             # lint and fix
+npm run format           # Prettier
+npm run migration:generate -- src/migrations/AddThing
+npm run migration:run
+npm run keys:generate    # RS256 key pair into .env
 ```
 
-The app refuses to start with keys under 2048 bits or a private and public key that do not match. Use different keys for each environment and keep production keys in your secret manager, not in `.env` files in the repository.
+## Documentation
+
+- [Authentication](documentation/auth.md)
+- [Organizations](documentation/organizations.md)
+- [Configuration](documentation/configuration.md): every environment variable
+- [Observability](documentation/observability.md): health checks, logs, tracing
+- [Benchmarks](documentation/BENCHMARKS.md)
 
 ## Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing`)
-3. Commit changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing`)
-5. Open a Pull Request
+Issues and pull requests are welcome. Use [conventional commits](https://www.conventionalcommits.org) and run `npm run lint:check`, `npm run format:check`, `npm run build` and `npm test` before you push. See [AGENTS.md](AGENTS.md) for the conventions.
 
 ## License
 
 [MIT](LICENSE) © [Joseph Goksu](https://josephgoksu.com)
 
----
-
-If this saved you time, consider giving it a star. It helps others find it.
-
-## Star History
+## Star history
 
 [![Star History Chart](https://api.star-history.com/svg?repos=josephgoksu/prime-nestjs&type=Timeline)](https://star-history.com/#josephgoksu/prime-nestjs&Timeline)
