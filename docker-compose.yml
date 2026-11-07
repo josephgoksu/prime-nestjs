@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   app_server:
     container_name: app_server

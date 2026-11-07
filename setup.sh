@@ -1,85 +1,80 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# One-command setup for a fresh clone.
+#
+#   ./setup.sh             Postgres in Docker, app on your machine (npm run start:dev)
+#   ./setup.sh --docker    app and Postgres both in Docker
+#   ./setup.sh --no-docker use the Postgres in .env (you run it yourself)
+#
+# Safe to run again: an existing .env and existing JWT keys are kept.
+set -euo pipefail
+cd "$(dirname "$0")"
 
-# STDERR log function
-err() {
-  echo -e "\n[$(date +'%Y-%m-%dT%H:%M:%S%z')]: ${*}\n" >&2
-  exit 1
-}
+mode=local
+case "${1:-}" in
+  "") ;;
+  --docker) mode=docker ;;
+  --no-docker) mode=none ;;
+  -h | --help) sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+  *) echo "Unknown option: $1 (see ./setup.sh --help)" >&2; exit 1 ;;
+esac
 
-# STDOUT log function
-log() {
-  echo -e "\n[$(date +'%Y-%m-%dT%H:%M:%S%z')]: ${*}\n"
-}
+step() { printf '\n\033[1m==> %s\033[0m\n' "$*"; }
+fail() { printf '\n\033[31mError:\033[0m %s\n' "$*" >&2; exit 1; }
 
-# Check if Docker is installed
-if ! type "docker" >/dev/null 2>&1; then
-  err "⛔️ Docker not installed"
+step "Checking tools"
+command -v node >/dev/null || fail "Node.js is not installed. Install Node 24 LTS (or 22.13+)."
+command -v npm >/dev/null || fail "npm is not installed."
+# Same range as "engines" in package.json: require(esm) needs ^22.13.0 || >=24.11.0.
+node -e '
+  const [major, minor] = process.versions.node.split(".").map(Number);
+  const ok = (major === 22 && minor >= 13) || major > 24 || (major === 24 && minor >= 11);
+  if (!ok) { console.error("Node " + process.versions.node + " is too old: use 24.11+ or 22.13+."); process.exit(1); }
+' || fail "Unsupported Node.js version."
+if [ "$mode" != none ]; then
+  command -v docker >/dev/null || fail "Docker is not installed. Install it, or run ./setup.sh --no-docker with your own Postgres."
+  docker compose version >/dev/null 2>&1 || fail "Docker Compose v2 is not available (docker compose ...)."
+  docker info >/dev/null 2>&1 || fail "Docker is installed but not running. Start Docker and try again."
 fi
+echo "Node $(node -v), npm $(npm -v)${mode:+, mode: $mode}"
 
-# Check if Docker Compose is installed
-if ! docker compose version >/dev/null 2>&1; then
-  err "⛔️ Docker Compose not installed"
+step "Preparing .env"
+if [ -f .env ]; then
+  echo ".env exists; kept as is."
+else
+  cp .env.example .env
+  echo "Created .env from .env.example."
 fi
-log "🍀 Docker and Docker Compose are installed, everything looks good."
+node scripts/generate-keys.mjs
 
-# Check if NodeJS is installed
-if ! type "node" >/dev/null 2>&1; then
-  err "⛔️ NodeJS not installed"
+step "Installing dependencies"
+npm ci
+
+case "$mode" in
+  docker)
+    step "Building and starting the app and Postgres"
+    # The app container applies migrations on start (DB_RUN_MIGRATIONS=true in docker-compose.yml).
+    docker compose up -d --build --wait
+    ;;
+  local)
+    step "Starting Postgres"
+    docker compose up -d --wait database
+    step "Applying migrations"
+    npm run migration:run
+    ;;
+  none)
+    step "Applying migrations to the Postgres in .env"
+    npm run migration:run || fail "Migrations failed. Check the POSTGRES_* values in .env and that Postgres is running."
+    ;;
+esac
+
+step "Done"
+port="$(grep -E '^PORT=' .env | cut -d= -f2 | tr -d '"' || true)"
+port="${port:-3000}"
+if [ "$mode" = docker ]; then
+  echo "API:     http://localhost:${port}"
+  echo "Health:  http://localhost:${port}/health/ready"
+  echo "Logs:    docker compose logs -f app_server"
+else
+  echo "Start the API:  npm run start:dev"
+  echo "Then open:      http://localhost:${port}/api (Swagger)"
 fi
-
-# Check if NPM is installed
-if ! type "npm" >/dev/null 2>&1; then
-  err "⛔️ NPM not installed"
-fi
-
-log "↪ Copying .env.example -> .env"
-cp .env.example .env
-if [ $? -ne 0 ]; then
-  err "⛔️ Error while copying .env"
-fi
-
-log "👐 Install dependencies"
-# First install husky separately
-npm install husky --save-dev
-if [ $? -ne 0 ]; then
-  err "⛔️ Husky installation failed"
-fi
-
-# Then run the main npm install
-npm install --ignore-scripts
-if [ $? -ne 0 ]; then
-  err "⛔️ NPM install failed"
-fi
-
-# Initialize husky (with warning if it fails)
-npx husky install
-if [ $? -ne 0 ]; then
-  log "⚠️ Husky initialization failed, but continuing..."
-fi
-
-log "👐 Starting Docker containers"
-docker compose up -d
-if [ $? -ne 0 ]; then
-  err "⛔️ Docker Compose failed to start containers"
-fi
-
-# Wait for database to be ready
-log "⏳ Waiting for database to be ready..."
-sleep 10
-
-# Migrations create the schema. Do not run schema:sync first: tables it creates
-# make the initial migration fail with "already exists".
-log "🔄 Running migrations"
-npx typeorm-ts-node-commonjs migration:run -d ./src/config/database.ts
-if [ $? -ne 0 ]; then
-  err "⛔️ Migrations failed"
-fi
-
-log "🐝 Clean repository"
-rm -rf ./README.md
-touch ./README.md
-if [ $? -ne 0 ]; then
-  err "⛔️ Cleaning failed."
-fi
-
-log "✅ Setup completed successfully!"

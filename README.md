@@ -39,13 +39,20 @@ Production-ready NestJS starter kit. Clone it, configure your `.env`, and ship â
 ```bash
 git clone https://github.com/josephgoksu/prime-nestjs.git
 cd prime-nestjs
-npm install
+./setup.sh            # .env, JWT keys, npm ci, Postgres in Docker, migrations
+npm run start:dev
+```
+
+`./setup.sh --docker` runs the app in Docker too, and `./setup.sh --no-docker` uses the Postgres set in `.env`. The script keeps an existing `.env` and existing keys, so it is safe to run again.
+
+Without the script (for example on Windows without bash):
+
+```bash
+npm ci
 cp .env.example .env
-
-# Start with Docker (recommended)
-npm run docker:up
-
-# OR start locally
+npm run keys:generate     # writes PRIVATE_KEY and PUBLIC_KEY to .env
+docker compose up -d --wait database
+npm run migration:run
 npm run start:dev
 ```
 
@@ -120,16 +127,12 @@ PUBLIC_KEY="-----BEGIN PUBLIC KEY-----..."
 ### Generate RSA Keys
 
 ```bash
-# Generate private key
-openssl genrsa -out private_key.pem 2048
-
-# Extract public key
-openssl rsa -in private_key.pem -pubout -out public_key.pem
-
-# Format for .env (single line)
-awk 'NF {sub(/\r/, ""); printf"%s\\n",$0;}' private_key.pem
-awk 'NF {sub(/\r/, ""); printf"%s\\n",$0;}' public_key.pem
+npm run keys:generate            # fills PRIVATE_KEY/PUBLIC_KEY in .env if unset
+npm run keys:generate -- --force # rotates them: current access tokens stop working, clients renew them with their refresh token
+npm run keys:generate -- --print # prints them, for a secret manager
 ```
+
+The app refuses to start with keys under 2048 bits or a private and public key that do not match. Use different keys for each environment and keep production keys in your secret manager, not in `.env` files in the repository.
 
 ## Contributing
 

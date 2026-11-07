@@ -26,6 +26,7 @@ npm run format           # prettier write
 npm run schema:sync      # dev only: sync schema from entities
 npm run migration:generate -- src/migrations/Name
 npm run migration:run
+npm run keys:generate    # RS256 key pair into .env (--force to rotate)
 ```
 
 Run `lint:check`, `format:check`, `build`, `npm test` and, when you touch persistence or HTTP behavior, `test:e2e` before you push.
