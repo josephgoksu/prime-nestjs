@@ -33,6 +33,15 @@ describe('App (e2e)', () => {
     return request(app.getHttpServer()).get('/health-check').expect(200).expect({ message: 'up' });
   });
 
+  it('GET /health/live reports ok', () => {
+    return request(app.getHttpServer()).get('/health/live').expect(200).expect({ status: 'ok' });
+  });
+
+  it('GET /health/ready checks the database', async () => {
+    const res = await request(app.getHttpServer()).get('/health/ready').expect(200);
+    expect((res.body as { info: { database: { status: string } } }).info.database.status).toBe('up');
+  });
+
   it('POST /auth/register creates a user', () => {
     return request(app.getHttpServer()).post('/auth/register').send({ email, name: 'E2E', password }).expect(201);
   });
@@ -114,5 +123,17 @@ describe('App (e2e)', () => {
       .set({ Authorization: `Bearer ${token}` })
       .send({})
       .expect(403);
+  });
+
+  it('rate limits the auth endpoints', async () => {
+    const previous = process.env.THROTTLE_AUTH_LIMIT;
+    process.env.THROTTLE_AUTH_LIMIT = '1';
+    try {
+      const server = app.getHttpServer();
+      await request(server).post('/auth/login').send({ email, password });
+      await request(server).post('/auth/login').send({ email, password }).expect(429);
+    } finally {
+      process.env.THROTTLE_AUTH_LIMIT = previous;
+    }
   });
 });

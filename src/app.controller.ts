@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { AppService } from './app.service';
 import { JwtAuthGuard } from './auth/strategy/jwt-auth.guard';
 import { RolesGuard } from './auth/strategy/roles.guard';
@@ -14,6 +15,8 @@ export class AppController {
     return this.appService.getHello();
   }
 
+  /** Kept for existing monitors. New deployments should use /health/live and /health/ready. */
+  @SkipThrottle()
   @Get('/health-check')
   healthCheck(): { message: string } {
     return this.appService.healthCheck();

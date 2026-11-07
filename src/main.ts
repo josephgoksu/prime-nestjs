@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
@@ -9,8 +10,14 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
 
   try {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create<NestExpressApplication>(AppModule);
     const configService = app.get(ConfigService);
+
+    // Close the HTTP server and DB pool cleanly on SIGTERM (containers, rolling deploys).
+    app.enableShutdownHooks();
+
+    // Behind a load balancer, set TRUST_PROXY so client IPs (and rate limits) are correct.
+    app.set('trust proxy', configService.get<boolean | number | string>('trustProxy', false));
 
     // Security middleware
     app.use(helmet());
@@ -34,9 +41,9 @@ async function bootstrap() {
     // Swagger - only enable in non-production environments
     if (configService.get('env') !== 'production') {
       const config = new DocumentBuilder()
-        .setTitle('Prime Nestjs')
-        .setDescription('Boilerplate for nestjs')
-        .setVersion('2.0.0')
+        .setTitle('Prime NestJS')
+        .setDescription('Production-ready NestJS API starter')
+        .setVersion(process.env.npm_package_version ?? '3.0.0')
         .addBearerAuth()
         .addTag('api')
         .build();
