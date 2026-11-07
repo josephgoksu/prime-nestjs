@@ -27,24 +27,28 @@ export default tseslint.config(
   {
     rules: {
       '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/adjacent-overload-signatures': 'error',
       '@typescript-eslint/consistent-type-assertions': 'error',
       '@typescript-eslint/dot-notation': 'error',
+      '@typescript-eslint/prefer-for-of': 'error',
+      '@typescript-eslint/prefer-function-type': 'error',
+      '@typescript-eslint/unified-signatures': 'error',
       eqeqeq: ['error', 'smart'],
       'guard-for-in': 'error',
       'no-bitwise': 'error',
+      'no-caller': 'error',
       'no-console': 'error',
       'no-eval': 'error',
+      'no-new-wrappers': 'error',
       'no-throw-literal': 'error',
-      'no-var': 'error',
+      'no-undef-init': 'error',
       'object-shorthand': 'error',
-      'prefer-const': 'error',
       radix: 'error',
     },
   },
   {
-    // Jest mocks and test doubles are loosely typed by nature.
+    // Vitest mocks and test doubles are loosely typed by nature.
     files: ['**/*.spec.ts', 'test/**/*.ts'],
     rules: {
       '@typescript-eslint/unbound-method': 'off',

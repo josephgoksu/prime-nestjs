@@ -31,7 +31,7 @@ Production-ready NestJS starter kit. Clone it, configure your `.env`, and ship â
 
 ### Prerequisites
 
-- Node.js >= 22.12 (24 LTS recommended)
+- Node.js 22.13+ or 24.11+ (24 LTS recommended)
 - PostgreSQL (or use Docker)
 
 ### Setup

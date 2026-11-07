@@ -60,11 +60,15 @@ jobs:
             echo "PUBLIC_KEY<<EOF"; cat public.pem; echo "EOF"
           } >> "$GITHUB_ENV"
 
+      # Lint, format and audit results do not depend on the Node version,
+      # so run them on one matrix leg only.
       - name: Lint
-        run: npx eslint "{src,test}/**/*.ts"
+        if: matrix.node-version == 24
+        run: npm run lint:check
 
       - name: Format check
-        run: npx prettier --check "src/**/*.ts" "test/**/*.ts"
+        if: matrix.node-version == 24
+        run: npm run format:check
 
       - name: Build
         run: npm run build
@@ -79,4 +83,5 @@ jobs:
         run: npm run test:e2e
 
       - name: Audit production dependencies
+        if: matrix.node-version == 24
         run: npm audit --omit=dev --audit-level=high
