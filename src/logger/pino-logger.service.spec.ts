@@ -25,6 +25,23 @@ describe('PinoLoggerService', () => {
     expect(pino.error).toHaveBeenCalledWith({ context: 'TypeOrm', err }, 'db down');
   });
 
+  it('keeps an Error passed after the message', () => {
+    const err = new Error('connect ECONNREFUSED');
+    service.error('Error during application bootstrap:', err, 'Bootstrap');
+    expect(pino.error).toHaveBeenCalledWith({ context: 'Bootstrap', err }, 'Error during application bootstrap:');
+  });
+
+  it('drops the undefined stack Nest adds for contextual error() calls', () => {
+    service.error('plain', undefined, 'TasksService');
+    expect(pino.error).toHaveBeenCalledWith({ context: 'TasksService' }, 'plain');
+  });
+
+  it('does not take a lone stack for the context', () => {
+    const err = new Error('hook failed');
+    service.error(err, err.stack);
+    expect(pino.error).toHaveBeenCalledWith({ err }, 'hook failed');
+  });
+
   it('merges object messages into the log line', () => {
     service.warn({ userId: 1, msg: 'rehash failed' }, 'AuthService');
     expect(pino.warn).toHaveBeenCalledWith({ context: 'AuthService', userId: 1, msg: 'rehash failed' });

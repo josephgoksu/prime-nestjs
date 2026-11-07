@@ -1,4 +1,6 @@
-// Must be the first import: tracing has to patch modules before they load.
+// Must be the first imports: .env has to be loaded before tracing and the logger
+// read their settings, and tracing has to patch modules before they load.
+import './config/load-env';
 import './instrumentation';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -7,6 +9,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { Logger as NestLogger, ValidationPipe } from '@nestjs/common';
 import { PinoLoggerService } from './logger/pino-logger.service';
+import { REQUEST_ID_HEADER, requestLogging } from './logger/request-logging.middleware';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
@@ -17,10 +20,15 @@ async function bootstrap() {
     const configService = app.get(ConfigService);
 
     // Close the HTTP server and DB pool cleanly on SIGTERM (containers, rolling deploys).
-    app.enableShutdownHooks();
+    // process.exit() at the end lets the asynchronous logger write its last lines;
+    // a re-raised signal would end the process without running exit handlers.
+    app.enableShutdownHooks([], { useProcessExit: true });
 
     // Behind a load balancer, set TRUST_PROXY so client IPs (and rate limits) are correct.
     app.set('trust proxy', configService.get<boolean | number | string>('trustProxy', false));
+
+    // First, so requests rejected by helmet, CORS or the body parser get an id and a log line too.
+    app.use(requestLogging);
 
     // Security middleware
     app.use(helmet());
@@ -30,6 +38,8 @@ async function bootstrap() {
       origin: allowedOrigins,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
       credentials: true,
+      // Lets browser clients read the request id, for example to quote it in a bug report.
+      exposedHeaders: [REQUEST_ID_HEADER],
     });
 
     // Global pipes

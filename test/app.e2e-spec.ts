@@ -5,6 +5,7 @@ import { App } from 'supertest/types';
 import { getStorageToken, ThrottlerStorageService } from '@nestjs/throttler';
 import { AppModule } from '../src/app.module';
 import { UsersService } from '../src/users/users.service';
+import { requestLogging } from '../src/logger/request-logging.middleware';
 
 describe('App (e2e)', () => {
   let app: INestApplication<App>;
@@ -18,6 +19,7 @@ describe('App (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.use(requestLogging);
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }));
     await app.init();
   });

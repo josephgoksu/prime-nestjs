@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
 import type { NextFunction, Request, Response } from 'express';
 import { rootLogger } from './pino';
-import { RequestLoggingMiddleware, resolveRequestId } from './request-logging.middleware';
+import { requestLogging, resolveRequestId } from './request-logging.middleware';
 
 describe('resolveRequestId', () => {
   it('reuses a well-formed incoming id', () => {
@@ -15,18 +15,22 @@ describe('resolveRequestId', () => {
   });
 });
 
-describe('RequestLoggingMiddleware', () => {
-  const middleware = new RequestLoggingMiddleware();
-
-  function run(url: string, status: number, header?: string) {
-    const res = Object.assign(new EventEmitter(), { statusCode: status, setHeader: vi.fn() });
+describe('requestLogging', () => {
+  function run(url: string, status: number, header?: string, finished = true) {
+    const res = Object.assign(new EventEmitter(), { statusCode: status, writableFinished: finished, setHeader: vi.fn() });
     const req = { headers: header ? { 'x-request-id': header } : {}, originalUrl: url, method: 'GET' } as unknown as Request & { id?: string };
     const next = vi.fn() as NextFunction;
-    middleware.use(req, res as unknown as Response, next);
-    res.emit('finish');
+    requestLogging(req, res as unknown as Response, next);
+    res.emit('close');
     return { req, res, next };
   }
 
+  let info: ReturnType<typeof vi.spyOn>;
+  let error: ReturnType<typeof vi.spyOn>;
+  beforeEach(() => {
+    info = vi.spyOn(rootLogger, 'info').mockImplementation(() => undefined);
+    error = vi.spyOn(rootLogger, 'error').mockImplementation(() => undefined);
+  });
   afterEach(() => vi.restoreAllMocks());
 
   it('sets req.id and echoes it in the response header', () => {
@@ -37,9 +41,6 @@ describe('RequestLoggingMiddleware', () => {
   });
 
   it('logs one line per request, at error level only for 5xx', () => {
-    const info = vi.spyOn(rootLogger, 'info').mockImplementation(() => undefined);
-    const error = vi.spyOn(rootLogger, 'error').mockImplementation(() => undefined);
-
     run('/tasks?page=2', 200);
     run('/tasks', 404);
     run('/tasks', 503);
@@ -49,8 +50,12 @@ describe('RequestLoggingMiddleware', () => {
     expect(error).toHaveBeenCalledTimes(1);
   });
 
+  it('logs requests the client aborted before the response finished', () => {
+    run('/tasks', 200, 'gone-1', false);
+    expect(info).toHaveBeenCalledWith(expect.objectContaining({ reqId: 'gone-1', aborted: true }), 'request aborted');
+  });
+
   it('does not log health probes', () => {
-    const info = vi.spyOn(rootLogger, 'info').mockImplementation(() => undefined);
     run('/health/live', 200);
     run('/health/ready', 200);
     expect(info).not.toHaveBeenCalled();
