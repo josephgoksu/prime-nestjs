@@ -1,8 +1,8 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import * as dotenv from 'dotenv';
-import { join } from 'node:path';
 import { Task } from '../tasks/entities/task.entity';
 import { User } from '../users/entities/user.entity';
+import { migrations } from '../migrations';
 
 // Load environment variables from .env file. dotenv >= 17 prints an
 // "injected env" line on every call unless told to be quiet.
@@ -18,9 +18,11 @@ export const dataSourceOptions: DataSourceOptions = {
   // Entities are listed as classes, not globs, so the app, the TypeORM CLI
   // (ts-node) and the test runner all share the same class identity.
   entities: [User, Task],
-  // Resolved relative to this file: src/migrations under ts-node, dist/migrations at runtime.
-  migrations: [join(__dirname, '..', 'migrations', '*.{ts,js}')],
+  // Registered in src/migrations/index.ts, as classes for the same reason as entities.
+  migrations,
   synchronize: false,
+  // Apply pending migrations on startup when DB_RUN_MIGRATIONS=true (the Docker Compose default).
+  migrationsRun: process.env.DB_RUN_MIGRATIONS === 'true',
   ssl: process.env.POSTGRES_SSL === 'true' ? { rejectUnauthorized: process.env.POSTGRES_SSL_REJECT_UNAUTHORIZED !== 'false' } : false,
   extra: {
     max: parseInt(process.env.POSTGRES_POOL_SIZE ?? '10', 10) || 10,

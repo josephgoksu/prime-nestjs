@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
 
 export enum TaskStatus {
   OPEN = 'open',
@@ -14,8 +15,8 @@ export class Task {
   @Column()
   title: string;
 
-  @Column({ nullable: true })
-  description: string;
+  @Column({ type: 'varchar', nullable: true })
+  description: string | null;
 
   @Column({
     type: 'enum',
@@ -24,9 +25,17 @@ export class Task {
   })
   status: TaskStatus;
 
-  @CreateDateColumn()
+  @Index()
+  @Column()
+  ownerId: number;
+
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'ownerId' })
+  owner?: User;
+
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 }

@@ -1,6 +1,8 @@
 import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { NormalizeEmail } from '../../custom.decorator';
 
 export class LoginDTO {
+  @NormalizeEmail()
   @IsNotEmpty()
   @IsEmail()
   @MaxLength(255)

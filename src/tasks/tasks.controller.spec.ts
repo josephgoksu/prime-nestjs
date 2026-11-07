@@ -2,6 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
 import { TaskStatus } from './entities/task.entity';
+import { User } from '../users/entities/user.entity';
+
+const user = { id: 7 } as User;
 
 describe('TasksController', () => {
   let controller: TasksController;
@@ -45,9 +48,9 @@ describe('TasksController', () => {
 
       mockTasksService.create.mockResolvedValue(expectedResult);
 
-      const result = await controller.create(createTaskDto);
+      const result = await controller.create(user, createTaskDto);
 
-      expect(tasksService.create).toHaveBeenCalledWith(createTaskDto);
+      expect(tasksService.create).toHaveBeenCalledWith(7, createTaskDto);
       expect(result).toEqual(expectedResult);
     });
   });
@@ -61,9 +64,9 @@ describe('TasksController', () => {
 
       mockTasksService.findAll.mockResolvedValue(expectedResult);
 
-      const result = await controller.findAll();
+      const result = await controller.findAll(user);
 
-      expect(tasksService.findAll).toHaveBeenCalled();
+      expect(tasksService.findAll).toHaveBeenCalledWith(7);
       expect(result).toEqual(expectedResult);
     });
   });
@@ -74,9 +77,9 @@ describe('TasksController', () => {
 
       mockTasksService.findOne.mockResolvedValue(expectedResult);
 
-      const result = await controller.findOne(1);
+      const result = await controller.findOne(user, 1);
 
-      expect(tasksService.findOne).toHaveBeenCalledWith(1);
+      expect(tasksService.findOne).toHaveBeenCalledWith(7, 1);
       expect(result).toEqual(expectedResult);
     });
   });
@@ -88,9 +91,9 @@ describe('TasksController', () => {
 
       mockTasksService.update.mockResolvedValue(expectedResult);
 
-      const result = await controller.update(1, updateTaskDto);
+      const result = await controller.update(user, 1, updateTaskDto);
 
-      expect(tasksService.update).toHaveBeenCalledWith(1, updateTaskDto);
+      expect(tasksService.update).toHaveBeenCalledWith(7, 1, updateTaskDto);
       expect(result).toEqual(expectedResult);
     });
   });
@@ -99,9 +102,9 @@ describe('TasksController', () => {
     it('should remove a task', async () => {
       mockTasksService.remove.mockResolvedValue(undefined);
 
-      await controller.remove(1);
+      await controller.remove(user, 1);
 
-      expect(tasksService.remove).toHaveBeenCalledWith(1);
+      expect(tasksService.remove).toHaveBeenCalledWith(7, 1);
     });
   });
 });

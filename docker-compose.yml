@@ -11,6 +11,7 @@ services:
     env_file: .env
     environment:
       - POSTGRES_HOST=database
+      - DB_RUN_MIGRATIONS=true
     ports:
       - '127.0.0.1:3000:3000'
     networks:

@@ -76,8 +76,8 @@ jobs:
       - name: Unit tests
         run: npm test
 
-      - name: Create schema
-        run: npm run schema:sync
+      - name: Run migrations
+        run: npm run migration:run
 
       - name: E2E tests
         run: npm run test:e2e

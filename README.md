@@ -69,11 +69,13 @@ npm run format        # Format code with Prettier
 ### Database
 
 ```bash
-npm run schema:sync              # Sync database schema (dev only)
-npm run migration:generate       # Generate migration from changes
-npm run migration:run            # Apply pending migrations
-npm run migration:revert         # Revert last migration
+npm run migration:run                                   # Apply pending migrations
+npm run migration:generate -- src/migrations/AddThing   # Generate a migration from entity changes
+npm run migration:revert                                # Revert the last migration
+npm run schema:sync                                     # Dev only: sync schema without migrations
 ```
+
+Register each new migration class in `src/migrations/index.ts`. A unit test fails if one is missing. Set `DB_RUN_MIGRATIONS=true` to apply pending migrations on startup (Docker Compose does this).
 
 ### Docker
 

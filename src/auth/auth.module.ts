@@ -6,6 +6,7 @@ import { UsersModule } from '../users/users.module';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { AuthController } from './auth.controller';
+import { PasswordService } from './password.service';
 import { LoggerModule } from '../logger/logger.module';
 
 @Module({
@@ -23,8 +24,8 @@ import { LoggerModule } from '../logger/logger.module';
     }),
     UsersModule,
   ],
-  providers: [AuthService, JwtStrategy],
-  exports: [AuthService, JwtModule, PassportModule],
+  providers: [AuthService, JwtStrategy, PasswordService],
+  exports: [AuthService, PasswordService, JwtModule, PassportModule],
   controllers: [AuthController],
 })
 export class AuthModule {}

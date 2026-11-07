@@ -67,12 +67,8 @@ fi
 log "⏳ Waiting for database to be ready..."
 sleep 10
 
-log "🗃️ Running TypeORM schema sync"
-npx typeorm-ts-node-commonjs schema:sync -d ./src/config/database.ts
-if [ $? -ne 0 ]; then
-  err "⛔️ Schema sync failed"
-fi
-
+# Migrations create the schema. Do not run schema:sync first: tables it creates
+# make the initial migration fail with "already exists".
 log "🔄 Running migrations"
 npx typeorm-ts-node-commonjs migration:run -d ./src/config/database.ts
 if [ $? -ne 0 ]; then

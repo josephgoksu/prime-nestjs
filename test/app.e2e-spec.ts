@@ -3,6 +3,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
+import { UsersService } from '../src/users/users.service';
 
 describe('App (e2e)', () => {
   let app: INestApplication<App>;
@@ -68,8 +69,43 @@ describe('App (e2e)', () => {
 
     await request(server).get(`/tasks/${id}`).set(auth).expect(200);
     await request(server).patch(`/tasks/${id}`).set(auth).send({ status: 'done' }).expect(200);
-    await request(server).delete(`/tasks/${id}`).set(auth).expect(200);
+    await request(server).delete(`/tasks/${id}`).set(auth).expect(204);
     await request(server).get(`/tasks/${id}`).set(auth).expect(404);
+  });
+
+  it('logs in with a differently cased email', () => {
+    return request(app.getHttpServer()).post('/auth/login').send({ email: email.toUpperCase(), password }).expect(200);
+  });
+
+  it("does not expose one user's tasks to another user", async () => {
+    const server = app.getHttpServer();
+    const owner = { Authorization: `Bearer ${token}` };
+
+    const otherEmail = `other-${Date.now()}@example.com`;
+    await request(server).post('/auth/register').send({ email: otherEmail, name: 'Other', password }).expect(201);
+    const login = await request(server).post('/auth/login').send({ email: otherEmail, password }).expect(200);
+    const other = { Authorization: `Bearer ${(login.body as { access_token: string }).access_token}` };
+
+    const created = await request(server).post('/tasks').set(owner).send({ title: 'private' }).expect(201);
+    const id = (created.body as { id: number }).id;
+
+    const list = await request(server).get('/tasks').set(other).expect(200);
+    expect((list.body as { id: number }[]).map((t) => t.id)).not.toContain(id);
+    await request(server).get(`/tasks/${id}`).set(other).expect(404);
+    await request(server).patch(`/tasks/${id}`).set(other).send({ title: 'hijacked' }).expect(404);
+    await request(server).delete(`/tasks/${id}`).set(other).expect(404);
+
+    const mine = await request(server).get(`/tasks/${id}`).set(owner).expect(200);
+    expect((mine.body as { title: string }).title).toBe('private');
+  });
+
+  it('does not load the password hash into the authenticated user', async () => {
+    // JwtStrategy.validate() sets request.user from findById(), so this is what every guarded handler sees.
+    const { sub } = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString()) as { sub: number };
+    const user = await app.get(UsersService).findById(sub);
+
+    expect(user?.email).toBe(email);
+    expect(user?.password).toBeUndefined();
   });
 
   it('POST /premium-echo forbids a standard user', () => {

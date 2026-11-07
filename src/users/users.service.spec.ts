@@ -11,6 +11,8 @@ describe('UsersService', () => {
     find: vi.fn(),
     findOne: vi.fn(),
     delete: vi.fn(),
+    update: vi.fn(),
+    createQueryBuilder: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -57,6 +59,14 @@ describe('UsersService', () => {
       expect(mockRepository.save).toHaveBeenCalledWith(expect.objectContaining(createUserDto));
       expect(result).toEqual(savedUser);
     });
+
+    it('stores the email trimmed and lowercased', async () => {
+      mockRepository.save.mockResolvedValue({});
+
+      await service.create({ name: 'Test User', email: ' Test@Example.COM ', password: 'password123' });
+
+      expect(mockRepository.save).toHaveBeenCalledWith(expect.objectContaining({ email: 'test@example.com' }));
+    });
   });
 
   describe('findAll', () => {
@@ -77,17 +87,41 @@ describe('UsersService', () => {
     });
   });
 
-  describe('findOne', () => {
-    it('should return a user by email', async () => {
-      const email = 'test@example.com';
-      const user = { id: 1, name: 'Test User', email, password: 'hashedpassword' };
+  describe('findByEmailWithPassword', () => {
+    it('selects the password hash explicitly', async () => {
+      const user = { id: 1, email: 'test@example.com', password: 'hash' };
+      const qb = {
+        addSelect: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        getOne: vi.fn().mockResolvedValue(user),
+      };
+      mockRepository.createQueryBuilder.mockReturnValue(qb);
 
-      mockRepository.findOne.mockResolvedValue(user);
+      const result = await service.findByEmailWithPassword('test@example.com');
 
-      const result = await service.findOne(email);
-
-      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { email } });
+      expect(qb.addSelect).toHaveBeenCalledWith('user.password');
+      expect(qb.where).toHaveBeenCalledWith('user.email = :email', { email: 'test@example.com' });
       expect(result).toEqual(user);
+    });
+
+    it('looks the email up trimmed and lowercased', async () => {
+      const qb = {
+        addSelect: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        getOne: vi.fn().mockResolvedValue(null),
+      };
+      mockRepository.createQueryBuilder.mockReturnValue(qb);
+
+      await service.findByEmailWithPassword('  Test@Example.COM ');
+
+      expect(qb.where).toHaveBeenCalledWith('user.email = :email', { email: 'test@example.com' });
+    });
+  });
+
+  describe('updatePassword', () => {
+    it('updates only the password column', async () => {
+      await service.updatePassword(1, 'new-hash');
+      expect(mockRepository.update).toHaveBeenCalledWith(1, { password: 'new-hash' });
     });
   });
 
