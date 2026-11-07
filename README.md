@@ -127,9 +127,9 @@ PUBLIC_KEY="-----BEGIN PUBLIC KEY-----..."
 ### Generate RSA Keys
 
 ```bash
-npm run keys:generate            # fills PRIVATE_KEY/PUBLIC_KEY in .env if unset
-npm run keys:generate -- --force # rotates them: current access tokens stop working, clients renew them with their refresh token
-npm run keys:generate -- --print # prints them, for a secret manager
+npm run keys:generate               # fills PRIVATE_KEY/PUBLIC_KEY in .env if unset
+npm run keys:generate -- --force    # rotates them: current access tokens stop working, clients renew them with their refresh token
+npm run -s keys:generate -- --print # prints them, for a secret manager (-s keeps npm's banner out of the output)
 ```
 
 The app refuses to start with keys under 2048 bits or a private and public key that do not match. Use different keys for each environment and keep production keys in your secret manager, not in `.env` files in the repository.

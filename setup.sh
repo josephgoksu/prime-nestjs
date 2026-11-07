@@ -14,7 +14,8 @@ case "${1:-}" in
   "") ;;
   --docker) mode=docker ;;
   --no-docker) mode=none ;;
-  -h | --help) sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+  # The cd above already moved into the script's directory, so a relative "$0" no longer resolves.
+  -h | --help) sed -n '2,8p' "$(basename "$0")" | sed 's/^# \{0,1\}//'; exit 0 ;;
   *) echo "Unknown option: $1 (see ./setup.sh --help)" >&2; exit 1 ;;
 esac
 
@@ -35,7 +36,7 @@ if [ "$mode" != none ]; then
   docker compose version >/dev/null 2>&1 || fail "Docker Compose v2 is not available (docker compose ...)."
   docker info >/dev/null 2>&1 || fail "Docker is installed but not running. Start Docker and try again."
 fi
-echo "Node $(node -v), npm $(npm -v)${mode:+, mode: $mode}"
+echo "Node $(node -v), npm $(npm -v), mode: $mode"
 
 step "Preparing .env"
 if [ -f .env ]; then
@@ -68,8 +69,9 @@ case "$mode" in
 esac
 
 step "Done"
-port="$(grep -E '^PORT=' .env | cut -d= -f2 | tr -d '"' || true)"
-port="${port:-3000}"
+# Read PORT as the app and Compose do: dotenv rules (quotes, comments, last assignment wins), and
+# a PORT set in the shell wins over .env. In Docker mode it is the host port docker-compose.yml publishes.
+port="$(node -e "require('dotenv').config({ quiet: true }); console.log(process.env.PORT || 3000)")" || port=3000
 if [ "$mode" = docker ]; then
   echo "API:     http://localhost:${port}"
   echo "Health:  http://localhost:${port}/health/ready"
