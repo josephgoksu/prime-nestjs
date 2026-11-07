@@ -3,7 +3,8 @@ test
 showcase
 dist
 node_modules
-.env.example
+.env
+.env.*
 .gitignore
 docker-compose.yml
 Dockerfile

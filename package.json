@@ -33,6 +33,7 @@
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "security:audit": "npm audit",
+    "keys:generate": "node scripts/generate-keys.mjs",
     "prepare": "husky || true"
   },
   "dependencies": {

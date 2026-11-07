@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   app_server:
     container_name: app_server
@@ -9,11 +7,15 @@ services:
       target: production
       dockerfile: ./Dockerfile
     env_file: .env
+    # Inside the network the app always listens on 3000 (the healthcheck below calls it there) and
+    # Postgres on 5432. PORT and POSTGRES_PORT from .env only pick the ports published on the host.
     environment:
       - POSTGRES_HOST=database
+      - POSTGRES_PORT=5432
+      - PORT=3000
       - DB_RUN_MIGRATIONS=true
     ports:
-      - '127.0.0.1:3000:3000'
+      - '127.0.0.1:${PORT:-3000}:3000'
     networks:
       - app-network
     restart: unless-stopped
@@ -29,15 +31,22 @@ services:
   database:
     container_name: app_postgres_dev
     image: postgres:16-alpine
-    env_file: .env
+    # Only the database settings: env_file would also hand the JWT private key to this container.
+    # Compose fills these from .env.
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      - POSTGRES_DB=${POSTGRES_DB:-postgres}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - app-network
     ports:
-      - '127.0.0.1:5432:5432'
+      - '127.0.0.1:${POSTGRES_PORT:-5432}:5432'
     healthcheck:
-      test: pg_isready -U ${POSTGRES_USER:-postgres}
+      # Over TCP: during first-run init the image starts a temporary server on the Unix socket only,
+      # so a socket check reports healthy before clients (and `docker compose up --wait`) can connect.
+      test: pg_isready -h 127.0.0.1 -U ${POSTGRES_USER:-postgres}
       interval: 10s
       timeout: 5s
       retries: 5
