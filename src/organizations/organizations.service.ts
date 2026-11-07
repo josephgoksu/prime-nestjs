@@ -1,13 +1,13 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, QueryFailedError, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { AddMemberDto } from './dto/add-member.dto';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { Membership } from './entities/membership.entity';
 import { Organization } from './entities/organization.entity';
-import { OrgRole } from './org-role.enum';
+import { hasOrgRole, OrgRole } from './org-role.enum';
 
 export interface OrganizationView extends Organization {
   /** The caller's role in this organization. */
@@ -22,11 +22,10 @@ export interface MemberView {
   joinedAt: Date;
 }
 
-const PG_UNIQUE_VIOLATION = '23505';
-
 /**
  * Organizations and their members. Callers pass the acting user's membership,
- * which OrganizationGuard has already loaded and checked.
+ * which OrganizationGuard has already loaded and checked. Membership changes
+ * re-read it under the organization lock, since it may have changed since.
  *
  * Role rules: admins manage members and admins; only owners grant, change or
  * remove the owner role; anyone can leave; an organization always keeps at
@@ -93,28 +92,33 @@ export class OrganizationsService {
   }
 
   /** Adds an existing user. There is no invitation flow: build one on top if you need it. */
-  async addMember(actor: Membership, dto: AddMemberDto): Promise<MemberView> {
-    const role = dto.role ?? OrgRole.MEMBER;
-    if (role === OrgRole.OWNER && actor.role !== OrgRole.OWNER) {
-      throw new ForbiddenException('Only owners can add owners');
-    }
+  async addMember(caller: Membership, dto: AddMemberDto): Promise<MemberView> {
     const user = await this.usersService.findByEmail(dto.email);
     if (!user) {
       throw new NotFoundException('No user with that email');
     }
-    try {
-      const membership = await this.memberships.save(this.memberships.create({ organizationId: actor.organizationId, userId: user.id, role }));
-      return toMemberView({ ...membership, user });
-    } catch (error) {
-      if (error instanceof QueryFailedError && (error.driverError as { code?: string }).code === PG_UNIQUE_VIOLATION) {
+    const role = dto.role ?? OrgRole.MEMBER;
+    return this.withOrganizationLock(caller, async (manager, actor) => {
+      if (!hasOrgRole(actor.role, OrgRole.ADMIN)) {
+        throw new ForbiddenException('Requires the admin role in this organization');
+      }
+      if (role === OrgRole.OWNER && actor.role !== OrgRole.OWNER) {
+        throw new ForbiddenException('Only owners can add owners');
+      }
+      // Membership changes are serialised by the lock, so this check cannot race.
+      if (await manager.existsBy(Membership, { organizationId: actor.organizationId, userId: user.id })) {
         throw new ConflictException('User is already a member');
       }
-      throw error;
-    }
+      const membership = await manager.save(manager.create(Membership, { organizationId: actor.organizationId, userId: user.id, role }));
+      return toMemberView({ ...membership, user });
+    });
   }
 
-  async updateMemberRole(actor: Membership, userId: number, role: OrgRole): Promise<MemberView> {
-    return this.withOrganizationLock(actor.organizationId, async (manager) => {
+  async updateMemberRole(caller: Membership, userId: number, role: OrgRole): Promise<MemberView> {
+    return this.withOrganizationLock(caller, async (manager, actor) => {
+      if (!hasOrgRole(actor.role, OrgRole.ADMIN)) {
+        throw new ForbiddenException('Requires the admin role in this organization');
+      }
       const target = await this.findMember(manager, actor.organizationId, userId);
       if ((role === OrgRole.OWNER || target.role === OrgRole.OWNER) && actor.role !== OrgRole.OWNER) {
         throw new ForbiddenException('Only owners can grant or change the owner role');
@@ -130,8 +134,8 @@ export class OrganizationsService {
   }
 
   /** Removes a member. Members can always remove themselves (leave). */
-  async removeMember(actor: Membership, userId: number): Promise<void> {
-    await this.withOrganizationLock(actor.organizationId, async (manager) => {
+  async removeMember(caller: Membership, userId: number): Promise<void> {
+    await this.withOrganizationLock(caller, async (manager, actor) => {
       const target = await this.findMember(manager, actor.organizationId, userId);
       const leaving = target.userId === actor.userId;
       if (!leaving && actor.role === OrgRole.MEMBER) {
@@ -150,8 +154,13 @@ export class OrganizationsService {
   /**
    * Runs membership changes one at a time per organization, so two owners
    * demoting each other at once cannot leave the organization without one.
+   *
+   * `work` gets the caller's membership as re-read under the lock: the copy
+   * OrganizationGuard loaded predates the lock, and a change that committed
+   * in between may have demoted or removed the caller.
    */
-  private withOrganizationLock<T>(organizationId: number, work: (manager: EntityManager) => Promise<T>): Promise<T> {
+  private withOrganizationLock<T>(caller: Membership, work: (manager: EntityManager, actor: Membership) => Promise<T>): Promise<T> {
+    const { organizationId, userId } = caller;
     return this.dataSource.transaction(async (manager) => {
       const locked = await manager
         .getRepository(Organization)
@@ -159,10 +168,11 @@ export class OrganizationsService {
         .setLock('pessimistic_write')
         .where('organization.id = :organizationId', { organizationId })
         .getOne();
-      if (!locked) {
+      const actor = locked ? await manager.findOneBy(Membership, { organizationId, userId }) : null;
+      if (!actor) {
         throw new NotFoundException('Organization not found');
       }
-      return work(manager);
+      return work(manager, actor);
     });
   }
 

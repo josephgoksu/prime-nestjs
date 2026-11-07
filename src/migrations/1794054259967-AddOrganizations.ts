@@ -28,6 +28,8 @@ export class AddOrganizations1794054259967 implements MigrationInterface {
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`ALTER TABLE "membership" DROP CONSTRAINT "FK_eef2d9d9c70cd13bed868afedf4"`);
     await queryRunner.query(`ALTER TABLE "membership" DROP CONSTRAINT "FK_4c62c8a7ba2337d6d6ffcd8eb6d"`);
+    // Organization tasks would otherwise turn into personal tasks of their creators.
+    await queryRunner.query(`DELETE FROM "task" WHERE "organizationId" IS NOT NULL`);
     await queryRunner.query(`ALTER TABLE "task" DROP CONSTRAINT "FK_5b0272d923a31c972bed1a1ac4d"`);
     await queryRunner.query(`DROP INDEX "public"."IDX_5b0272d923a31c972bed1a1ac4"`);
     await queryRunner.query(`ALTER TABLE "task" DROP COLUMN "organizationId"`);

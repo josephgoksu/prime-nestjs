@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/strategy/jwt-auth.guard';
 import { User } from '../users/entities/user.entity';
@@ -10,6 +10,8 @@ import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { Membership } from './entities/membership.entity';
 import { OrganizationGuard, RequireOrgRole } from './organization.guard';
 import { OrganizationsService } from './organizations.service';
+import { ParseIdPipe } from '../parse-id.pipe';
+import { StrictThrottle } from '../custom.decorator';
 import { OrgRole } from './org-role.enum';
 
 @Controller('organizations')
@@ -59,7 +61,8 @@ export class OrganizationsController {
     return this.organizationsService.listMembers(actor);
   }
 
-  /** Adds an existing user by email. */
+  /** Adds an existing user by email. It reveals whether an email is registered, so it has the stricter rate limit. */
+  @StrictThrottle()
   @Post(':orgId/members')
   @UseGuards(OrganizationGuard)
   @RequireOrgRole(OrgRole.ADMIN)
@@ -70,7 +73,7 @@ export class OrganizationsController {
   @Patch(':orgId/members/:userId')
   @UseGuards(OrganizationGuard)
   @RequireOrgRole(OrgRole.ADMIN)
-  updateMember(@CurrentMembership() actor: Membership, @Param('userId', ParseIntPipe) userId: number, @Body() dto: UpdateMemberDto) {
+  updateMember(@CurrentMembership() actor: Membership, @Param('userId', new ParseIdPipe('User id')) userId: number, @Body() dto: UpdateMemberDto) {
     return this.organizationsService.updateMemberRole(actor, userId, dto.role);
   }
 
@@ -79,7 +82,7 @@ export class OrganizationsController {
   @UseGuards(OrganizationGuard)
   @RequireOrgRole(OrgRole.MEMBER)
   @HttpCode(HttpStatus.NO_CONTENT)
-  removeMember(@CurrentMembership() actor: Membership, @Param('userId', ParseIntPipe) userId: number) {
+  removeMember(@CurrentMembership() actor: Membership, @Param('userId', new ParseIdPipe('User id')) userId: number) {
     return this.organizationsService.removeMember(actor, userId);
   }
 }

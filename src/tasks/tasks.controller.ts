@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiHeader } from '@nestjs/swagger';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -9,6 +9,7 @@ import { User } from '../users/entities/user.entity';
 import { CurrentMembership } from '../organizations/current-membership.decorator';
 import { Membership } from '../organizations/entities/membership.entity';
 import { OrganizationGuard } from '../organizations/organization.guard';
+import { ParseIdPipe } from '../parse-id.pipe';
 
 /**
  * Personal tasks by default. Send X-Organization-Id to work on an
@@ -31,7 +32,7 @@ export class TasksController {
   }
 
   @Get(':id')
-  findOne(@CurrentUser() user: User, @CurrentMembership() membership: Membership | undefined, @Param('id', ParseIntPipe) id: number) {
+  findOne(@CurrentUser() user: User, @CurrentMembership() membership: Membership | undefined, @Param('id', new ParseIdPipe('Task id')) id: number) {
     return this.tasksService.findOne({ userId: user.id, membership }, id);
   }
 
@@ -39,7 +40,7 @@ export class TasksController {
   update(
     @CurrentUser() user: User,
     @CurrentMembership() membership: Membership | undefined,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', new ParseIdPipe('Task id')) id: number,
     @Body() updateTaskDto: UpdateTaskDto,
   ) {
     return this.tasksService.update({ userId: user.id, membership }, id, updateTaskDto);
@@ -47,7 +48,7 @@ export class TasksController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@CurrentUser() user: User, @CurrentMembership() membership: Membership | undefined, @Param('id', ParseIntPipe) id: number) {
+  remove(@CurrentUser() user: User, @CurrentMembership() membership: Membership | undefined, @Param('id', new ParseIdPipe('Task id')) id: number) {
     return this.tasksService.remove({ userId: user.id, membership }, id);
   }
 }

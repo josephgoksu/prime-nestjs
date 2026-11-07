@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { Membership } from './entities/membership.entity';
 import { hasOrgRole, OrgRole } from './org-role.enum';
+import { parseId } from '../parse-id.pipe';
 
 /** Header that selects the organization for routes without an `:orgId` path parameter. */
 export const ORG_HEADER = 'x-organization-id';
@@ -20,18 +21,11 @@ export interface OrgRequest {
   membership?: Membership;
 }
 
-const parseOrgId = (raw: string): number => {
-  if (!/^[1-9]\d{0,9}$/.test(raw) || Number(raw) > 2_147_483_647) {
-    throw new BadRequestException('Organization id must be a positive integer');
-  }
-  return Number(raw);
-};
-
 /**
  * Resolves the organization from `:orgId` or the X-Organization-Id header and
  * loads the caller's membership into `request.membership`. Use after JwtAuthGuard.
  *
- * - No organization given: passes with no membership (personal scope), unless
+ * - No organization given (no header at all): passes with no membership (personal scope), unless
  *   the route has @RequireOrgRole, then 400.
  * - Caller is not a member: 404, so organization ids cannot be probed.
  * - Caller's role is below @RequireOrgRole: 403.
@@ -49,7 +43,9 @@ export class OrganizationGuard implements CanActivate {
 
     const header = request.headers[ORG_HEADER];
     const raw = request.params?.orgId ?? (Array.isArray(header) ? header[0] : header);
-    if (raw === undefined || raw === '') {
+    // An empty header is a client bug (for example an unset variable): it fails
+    // with a 400 instead of quietly falling back to personal scope.
+    if (raw === undefined) {
       if (required) {
         throw new BadRequestException('Organization id is required');
       }
@@ -57,7 +53,7 @@ export class OrganizationGuard implements CanActivate {
     }
 
     const membership = await this.memberships.findOne({
-      where: { organizationId: parseOrgId(raw), userId: request.user.id },
+      where: { organizationId: parseId(raw, 'Organization id'), userId: request.user.id },
     });
     if (!membership) {
       throw new NotFoundException('Organization not found');

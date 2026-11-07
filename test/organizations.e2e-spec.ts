@@ -81,7 +81,9 @@ describe('Organizations (e2e)', () => {
     // Members cannot manage members or rename the organization.
     await request(server()).post(`/organizations/${orgId}/members`).set(as('member')).send({ email: users.outsider.email }).expect(403);
     await request(server()).patch(`/organizations/${orgId}`).set(as('member')).send({ name: 'Nope' }).expect(403);
+    await request(server()).patch(`/organizations/${orgId}`).set(as('admin')).send({ name: null }).expect(400);
     await request(server()).patch(`/organizations/${orgId}`).set(as('admin')).send({ name: 'Acme Ltd' }).expect(200);
+    await request(server()).patch(`/organizations/${orgId}/members/99999999999`).set(as('admin')).send({ role: 'member' }).expect(400);
 
     const members = (await request(server()).get(`/organizations/${orgId}/members`).set(as('member')).expect(200)).body as Member[];
     expect(members.map((m) => m.role)).toEqual(['owner', 'admin', 'member']);
@@ -100,6 +102,14 @@ describe('Organizations (e2e)', () => {
     const seenByAdmin = (await request(server()).get('/tasks').set(inOrg('admin')).expect(200)).body as Task[];
     expect(seenByAdmin.map((t) => t.title)).toEqual(['Shared']);
     await request(server()).patch(`/tasks/${shared.id}`).set(inOrg('owner')).send({ status: 'in_progress' }).expect(200);
+
+    // Nulls and out-of-range ids are 400s, not database errors.
+    await request(server()).patch(`/tasks/${shared.id}`).set(inOrg('owner')).send({ title: null }).expect(400);
+    await request(server()).get('/tasks/99999999999').set(as('member')).expect(400);
+    await request(server())
+      .get('/tasks')
+      .set({ ...as('member'), 'X-Organization-Id': '' })
+      .expect(400);
 
     // An organization task is not reachable without the header.
     await request(server()).get(`/tasks/${shared.id}`).set(as('member')).expect(404);

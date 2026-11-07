@@ -48,6 +48,12 @@ export class UsersService {
     await this.usersRepository.update(id, { password: passwordHash });
   }
 
+  /**
+   * Deletes the user with their refresh tokens, memberships and every task they
+   * created, including tasks in shared organizations. No endpoint calls this yet:
+   * before you expose account deletion, decide whether organization tasks should
+   * be reassigned and stop the last owner of an organization from leaving it ownerless.
+   */
   async remove(id: number): Promise<void> {
     await this.usersRepository.delete(id);
   }

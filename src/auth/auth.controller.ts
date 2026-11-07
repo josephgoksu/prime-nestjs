@@ -1,5 +1,4 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { LoginDTO } from './dto/login.dto';
 import { UsersDTO } from '../users/dto/create-user.dto';
@@ -7,26 +6,25 @@ import { RefreshTokenDTO } from './dto/refresh-token.dto';
 import { JwtAuthGuard } from './strategy/jwt-auth.guard';
 import { CurrentUser } from './current-user.decorator';
 import { User } from '../users/entities/user.entity';
+import { StrictThrottle } from '../custom.decorator';
 
 /**
- * Stricter limit on credential endpoints (login, register) to slow down brute force and signup abuse.
+ * login and register use the stricter THROTTLE_AUTH_LIMIT to slow down brute force and signup abuse.
  * refresh, logout and me take no password and keep the global limit, so a browser app that calls
  * them on every page load is not throttled like a login form.
  */
-const authLimit = () => parseInt(process.env.THROTTLE_AUTH_LIMIT ?? '', 10) || 10;
-
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Throttle({ default: { limit: authLimit } })
+  @StrictThrottle()
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDTO) {
     return this.authService.login(loginDto);
   }
 
-  @Throttle({ default: { limit: authLimit } })
+  @StrictThrottle()
   @Post('register')
   async register(@Body() registerDto: UsersDTO) {
     return this.authService.register(registerDto);

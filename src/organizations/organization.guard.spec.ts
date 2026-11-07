@@ -1,6 +1,7 @@
 import { BadRequestException, ExecutionContext, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Repository } from 'typeorm';
+import { Test } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { Membership } from './entities/membership.entity';
 import { OrganizationGuard, OrgRequest } from './organization.guard';
 import { OrgRole } from './org-role.enum';
@@ -8,7 +9,14 @@ import { OrgRole } from './org-role.enum';
 describe('OrganizationGuard', () => {
   const findOne = vi.fn();
   const reflector = { getAllAndOverride: vi.fn() };
-  const guard = new OrganizationGuard(reflector as unknown as Reflector, { findOne } as unknown as Repository<Membership>);
+  let guard: OrganizationGuard;
+
+  beforeEach(async () => {
+    const module = await Test.createTestingModule({
+      providers: [OrganizationGuard, { provide: Reflector, useValue: reflector }, { provide: getRepositoryToken(Membership), useValue: { findOne } }],
+    }).compile();
+    guard = module.get(OrganizationGuard);
+  });
 
   const context = (request: Partial<OrgRequest>): { ctx: ExecutionContext; request: OrgRequest } => {
     const full = { user: { id: 7 }, headers: {}, ...request } as OrgRequest;
@@ -34,7 +42,7 @@ describe('OrganizationGuard', () => {
     await expect(guard.canActivate(context({}).ctx)).rejects.toThrow(BadRequestException);
   });
 
-  it.each(['abc', '0', '-1', '1.5', '99999999999'])('rejects the malformed id %s', async (raw) => {
+  it.each(['', 'abc', '0', '-1', '1.5', '2147483648', '99999999999'])('rejects the malformed id %s', async (raw) => {
     await expect(guard.canActivate(context({ headers: { 'x-organization-id': raw } }).ctx)).rejects.toThrow(BadRequestException);
   });
 

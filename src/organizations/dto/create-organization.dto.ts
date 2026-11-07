@@ -1,8 +1,8 @@
-import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { Trim } from '../../custom.decorator';
 
 export class CreateOrganizationDto {
-  @Transform(({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value))
+  @Trim()
   @IsNotEmpty()
   @IsString()
   @MaxLength(100)
