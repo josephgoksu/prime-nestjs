@@ -34,6 +34,10 @@ export class UsersService {
       .getOne();
   }
 
+  findByEmail(email: string): Promise<User | null> {
+    return this.usersRepository.findOne({ where: { email: normalizeEmail(email) } });
+  }
+
   findById(id: number): Promise<User | null> {
     return this.usersRepository.findOne({
       where: { id },

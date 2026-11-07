@@ -4,6 +4,8 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 import { Task } from '../tasks/entities/task.entity';
 import { User } from '../users/entities/user.entity';
 import { RefreshToken } from '../auth/entities/refresh-token.entity';
+import { Organization } from '../organizations/entities/organization.entity';
+import { Membership } from '../organizations/entities/membership.entity';
 import { migrations } from '../migrations';
 
 export const dataSourceOptions: DataSourceOptions = {
@@ -15,7 +17,7 @@ export const dataSourceOptions: DataSourceOptions = {
   database: process.env.POSTGRES_DB,
   // Entities are listed as classes, not globs, so the app, the TypeORM CLI
   // (ts-node) and the test runner all share the same class identity.
-  entities: [User, Task, RefreshToken],
+  entities: [User, Task, RefreshToken, Organization, Membership],
   // Registered in src/migrations/index.ts, as classes for the same reason as entities.
   migrations,
   // gen_random_uuid() is built into PostgreSQL 13+, so no extension (and no superuser) is needed.
