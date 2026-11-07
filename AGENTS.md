@@ -39,7 +39,8 @@ src/
 ├── config/              # env-based config; database.ts is shared by the app and the TypeORM CLI
 ├── auth/                # login/register, JWT (RS256) strategy, JwtAuthGuard, RolesGuard
 ├── users/               # User entity, Role enum, UsersService
-├── tasks/               # example CRUD feature
+├── organizations/       # tenants: Organization, Membership (owner/admin/member), OrganizationGuard
+├── tasks/               # example CRUD feature, personal or per organization
 └── logger/              # LoggerService
 test/                    # e2e tests
 ```
@@ -50,6 +51,7 @@ test/                    # e2e tests
 - Validate every request body with class-validator DTOs. The global `ValidationPipe` uses `whitelist` and `forbidNonWhitelisted`.
 - Register new entities in `src/config/database.ts` (`entities: [...]`) as classes, not globs. Globs load a second copy of each class under the test runner and the CLI, and TypeORM then cannot find metadata.
 - Unit tests sit next to the code as `*.spec.ts` and use `vi.fn()` / `vi.mock()`. Mock repositories with `getRepositoryToken(Entity)`.
+- Scope tenant data with `OrganizationGuard` and `@CurrentMembership()` (see `tasks/`): no `X-Organization-Id` header means personal scope; a caller who is not a member gets 404, not 403.
 - Never log secrets, tokens or password hashes. Never return `password` from an endpoint.
 - Configuration comes from environment variables only. Add every new variable to `.env.example`.
 

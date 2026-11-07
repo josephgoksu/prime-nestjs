@@ -3,8 +3,12 @@ import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
 import { TaskStatus } from './entities/task.entity';
 import { User } from '../users/entities/user.entity';
+import { Membership } from '../organizations/entities/membership.entity';
+import { OrganizationGuard } from '../organizations/organization.guard';
+import { OrgRole } from '../organizations/org-role.enum';
 
 const user = { id: 7 } as User;
+const personal = { userId: 7, membership: undefined };
 
 describe('TasksController', () => {
   let controller: TasksController;
@@ -27,7 +31,10 @@ describe('TasksController', () => {
           useValue: mockTasksService,
         },
       ],
-    }).compile();
+    })
+      .overrideGuard(OrganizationGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get<TasksController>(TasksController);
     tasksService = module.get<TasksService>(TasksService);
@@ -48,9 +55,9 @@ describe('TasksController', () => {
 
       mockTasksService.create.mockResolvedValue(expectedResult);
 
-      const result = await controller.create(user, createTaskDto);
+      const result = await controller.create(user, undefined, createTaskDto);
 
-      expect(tasksService.create).toHaveBeenCalledWith(7, createTaskDto);
+      expect(tasksService.create).toHaveBeenCalledWith(personal, createTaskDto);
       expect(result).toEqual(expectedResult);
     });
   });
@@ -64,9 +71,9 @@ describe('TasksController', () => {
 
       mockTasksService.findAll.mockResolvedValue(expectedResult);
 
-      const result = await controller.findAll(user);
+      const result = await controller.findAll(user, undefined);
 
-      expect(tasksService.findAll).toHaveBeenCalledWith(7);
+      expect(tasksService.findAll).toHaveBeenCalledWith(personal);
       expect(result).toEqual(expectedResult);
     });
   });
@@ -77,9 +84,9 @@ describe('TasksController', () => {
 
       mockTasksService.findOne.mockResolvedValue(expectedResult);
 
-      const result = await controller.findOne(user, 1);
+      const result = await controller.findOne(user, undefined, 1);
 
-      expect(tasksService.findOne).toHaveBeenCalledWith(7, 1);
+      expect(tasksService.findOne).toHaveBeenCalledWith(personal, 1);
       expect(result).toEqual(expectedResult);
     });
   });
@@ -91,9 +98,9 @@ describe('TasksController', () => {
 
       mockTasksService.update.mockResolvedValue(expectedResult);
 
-      const result = await controller.update(user, 1, updateTaskDto);
+      const result = await controller.update(user, undefined, 1, updateTaskDto);
 
-      expect(tasksService.update).toHaveBeenCalledWith(7, 1, updateTaskDto);
+      expect(tasksService.update).toHaveBeenCalledWith(personal, 1, updateTaskDto);
       expect(result).toEqual(expectedResult);
     });
   });
@@ -102,9 +109,18 @@ describe('TasksController', () => {
     it('should remove a task', async () => {
       mockTasksService.remove.mockResolvedValue(undefined);
 
-      await controller.remove(user, 1);
+      await controller.remove(user, undefined, 1);
 
-      expect(tasksService.remove).toHaveBeenCalledWith(7, 1);
+      expect(tasksService.remove).toHaveBeenCalledWith(personal, 1);
+    });
+
+    it('passes the organization membership through', async () => {
+      const membership = { organizationId: 3, userId: 7, role: OrgRole.MEMBER } as Membership;
+      mockTasksService.remove.mockResolvedValue(undefined);
+
+      await controller.remove(user, membership, 1);
+
+      expect(tasksService.remove).toHaveBeenCalledWith({ userId: 7, membership }, 1);
     });
   });
 });

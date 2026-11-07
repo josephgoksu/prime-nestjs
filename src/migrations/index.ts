@@ -1,6 +1,7 @@
 import type { MigrationInterface } from 'typeorm';
 import { InitialSchema1794049279506 } from './1794049279506-InitialSchema';
 import { AddRefreshTokens1794053122526 } from './1794053122526-AddRefreshTokens';
+import { AddOrganizations1794054259967 } from './1794054259967-AddOrganizations';
 
 /**
  * Every migration, in order. Register each new file here after
@@ -10,4 +11,8 @@ import { AddRefreshTokens1794053122526 } from './1794053122526-AddRefreshTokens'
  * entities: the app, the TypeORM CLI and the test runner then load exactly the
  * same modules. migrations.spec.ts fails if a file is missing from this list.
  */
-export const migrations: (new () => MigrationInterface)[] = [InitialSchema1794049279506, AddRefreshTokens1794053122526];
+export const migrations: (new () => MigrationInterface)[] = [
+  InitialSchema1794049279506,
+  AddRefreshTokens1794053122526,
+  AddOrganizations1794054259967,
+];

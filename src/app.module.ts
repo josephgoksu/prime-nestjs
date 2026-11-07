@@ -13,6 +13,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration, { AppConfig } from './config';
 import { validateEnv } from './config/env.validation';
 import { LoggerModule } from './logger/logger.module';
+import { OrganizationsModule } from './organizations/organizations.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { LoggerModule } from './logger/logger.module';
     HealthModule,
     AuthModule,
     UsersModule,
+    OrganizationsModule,
     TasksModule,
   ],
   controllers: [AppController],
