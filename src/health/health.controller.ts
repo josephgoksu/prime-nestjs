@@ -22,6 +22,7 @@ export class HealthController {
   @Get('ready')
   @HealthCheck()
   ready() {
-    return this.health.check([() => this.db.pingCheck('database', { timeout: 1500 })]);
+    // Not rate limited, so cache the ping briefly: a flood of probes costs one query per second.
+    return this.health.check([() => this.db.pingCheck('database').withTimeout(1500).cacheFor(1000)]);
   }
 }

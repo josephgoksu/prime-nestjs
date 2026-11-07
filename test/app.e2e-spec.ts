@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
+import { getStorageToken, ThrottlerStorageService } from '@nestjs/throttler';
 import { AppModule } from '../src/app.module';
 import { UsersService } from '../src/users/users.service';
 
@@ -133,7 +134,11 @@ describe('App (e2e)', () => {
       await request(server).post('/auth/login').send({ email, password });
       await request(server).post('/auth/login').send({ email, password }).expect(429);
     } finally {
-      process.env.THROTTLE_AUTH_LIMIT = previous;
+      // Assigning undefined would store the string "undefined".
+      if (previous === undefined) delete process.env.THROTTLE_AUTH_LIMIT;
+      else process.env.THROTTLE_AUTH_LIMIT = previous;
+      // The 429 blocks the route for a full window whatever the limit is now, so clear it for later tests.
+      app.get<ThrottlerStorageService>(getStorageToken()).storage.clear();
     }
   });
 });

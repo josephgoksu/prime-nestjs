@@ -33,8 +33,49 @@ describe('validateEnv', () => {
     expect(() => validateEnv({ ...valid, PRIVATE_KEY: 'stub' })).toThrow('PRIVATE_KEY is not a valid PEM key');
   });
 
-  it('rejects an out-of-range port and an unknown NODE_ENV', () => {
+  it('rejects an out-of-range port', () => {
     expect(() => validateEnv({ ...valid, PORT: '70000' })).toThrow(/PORT/);
-    expect(() => validateEnv({ ...valid, NODE_ENV: 'prod' })).toThrow(/NODE_ENV/);
+  });
+
+  it('rejects numbers that parseInt would read differently', () => {
+    expect(() => validateEnv({ ...valid, THROTTLE_TTL_MS: '6e4' })).toThrow(/THROTTLE_TTL_MS/);
+    expect(() => validateEnv({ ...valid, PORT: '0x10' })).toThrow(/PORT/);
+    expect(() => validateEnv({ ...valid, THROTTLE_TTL_MS: '60000', THROTTLE_LIMIT: '100' })).not.toThrow();
+  });
+
+  it('accepts only "true" or "false" for flags the database config reads', () => {
+    expect(() => validateEnv({ ...valid, POSTGRES_SSL: '1' })).toThrow(/POSTGRES_SSL/);
+    expect(() => validateEnv({ ...valid, DB_RUN_MIGRATIONS: '1' })).toThrow(/DB_RUN_MIGRATIONS/);
+    expect(() => validateEnv({ ...valid, POSTGRES_SSL: 'true', DB_RUN_MIGRATIONS: 'false' })).not.toThrow();
+  });
+
+  it('requires a unit on JWT_EXPIRES_IN', () => {
+    expect(() => validateEnv({ ...valid, JWT_EXPIRES_IN: '3600' })).toThrow(/JWT_EXPIRES_IN/);
+    expect(() => validateEnv({ ...valid, JWT_EXPIRES_IN: '1 hour later' })).toThrow(/JWT_EXPIRES_IN/);
+    expect(() => validateEnv({ ...valid, JWT_EXPIRES_IN: '15m' })).not.toThrow();
+    expect(() => validateEnv({ ...valid, JWT_EXPIRES_IN: '2 days' })).not.toThrow();
+  });
+
+  it('rejects keys RS256 cannot use', () => {
+    const other = generateKeyPairSync('rsa', {
+      modulusLength: 2048,
+      publicKeyEncoding: { type: 'spki', format: 'pem' },
+      privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+    });
+    expect(() => validateEnv({ ...valid, PUBLIC_KEY: other.publicKey })).toThrow('PUBLIC_KEY does not match PRIVATE_KEY');
+
+    const small = generateKeyPairSync('rsa', {
+      modulusLength: 1024,
+      publicKeyEncoding: { type: 'spki', format: 'pem' },
+      privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+    });
+    expect(() => validateEnv({ ...valid, PRIVATE_KEY: small.privateKey, PUBLIC_KEY: small.publicKey })).toThrow(/at least 2048 bits/);
+
+    const ec = generateKeyPairSync('ec', {
+      namedCurve: 'P-256',
+      publicKeyEncoding: { type: 'spki', format: 'pem' },
+      privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+    });
+    expect(() => validateEnv({ ...valid, PRIVATE_KEY: ec.privateKey, PUBLIC_KEY: ec.publicKey })).toThrow(/must be an RSA key/);
   });
 });

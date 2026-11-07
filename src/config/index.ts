@@ -17,17 +17,18 @@ export interface AppConfig {
   throttle: {
     ttlMs: number;
     limit: number;
-    authLimit: number;
   };
 }
 
 const int = (value: string | undefined, fallback: number) => parseInt(value ?? '', 10) || fallback;
 
 /** Express `trust proxy`: "true"/"false", a hop count, or a list of subnets. */
-function trustProxy(value: string | undefined): boolean | number | string {
-  if (value === undefined || value === '' || value === 'false') return false;
-  if (value === 'true') return true;
-  return /^\d+$/.test(value) ? Number(value) : value;
+function trustProxy(value = ''): boolean | number | string {
+  const trimmed = value.trim();
+  const flag = trimmed.toLowerCase();
+  if (flag === '' || flag === 'false') return false;
+  if (flag === 'true') return true;
+  return /^\d+$/.test(trimmed) ? Number(trimmed) : trimmed;
 }
 
 // Required variables are checked by validateEnv() before this runs.
@@ -46,7 +47,7 @@ export default (): AppConfig => ({
   throttle: {
     ttlMs: int(process.env.THROTTLE_TTL_MS, 60_000),
     limit: int(process.env.THROTTLE_LIMIT, 100),
-    authLimit: int(process.env.THROTTLE_AUTH_LIMIT, 10),
+    // THROTTLE_AUTH_LIMIT is read per request by AuthController's @Throttle().
   },
   database: dataSourceOptions,
 });

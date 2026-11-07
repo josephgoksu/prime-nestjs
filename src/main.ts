@@ -43,7 +43,7 @@ async function bootstrap() {
       const config = new DocumentBuilder()
         .setTitle('Prime NestJS')
         .setDescription('Production-ready NestJS API starter')
-        .setVersion(process.env.npm_package_version ?? '3.0.0')
+        .setVersion(process.env.npm_package_version ?? 'dev')
         .addBearerAuth()
         .addTag('api')
         .build();
