@@ -12,6 +12,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration, { AppConfig } from './config';
 import { validateEnv } from './config/env.validation';
+import { LoggerModule } from './logger/logger.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { validateEnv } from './config/env.validation';
       },
     }),
     ScheduleModule.forRoot(),
+    LoggerModule,
     HealthModule,
     AuthModule,
     UsersModule,

@@ -1,12 +1,9 @@
+// Load environment variables from .env file (the TypeORM CLI imports this file directly).
+import './load-env';
 import { DataSource, DataSourceOptions } from 'typeorm';
-import * as dotenv from 'dotenv';
 import { Task } from '../tasks/entities/task.entity';
 import { User } from '../users/entities/user.entity';
 import { migrations } from '../migrations';
-
-// Load environment variables from .env file. dotenv >= 17 prints an
-// "injected env" line on every call unless told to be quiet.
-dotenv.config({ quiet: true });
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',

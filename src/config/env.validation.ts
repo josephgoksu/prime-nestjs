@@ -74,6 +74,10 @@ export class EnvironmentVariables {
   PUBLIC_KEY: string;
 
   @IsOptional()
+  @IsIn(['', 'trace', 'debug', 'info', 'warn', 'error', 'fatal', 'silent'])
+  LOG_LEVEL?: string;
+
+  @IsOptional()
   @Matches(TIMESPAN, { message: 'JWT_EXPIRES_IN must be a number with a unit, such as 15m, 1h or 7d' })
   JWT_EXPIRES_IN?: string;
 
