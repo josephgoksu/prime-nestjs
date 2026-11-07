@@ -8,20 +8,25 @@ import { JwtAuthGuard } from './strategy/jwt-auth.guard';
 import { CurrentUser } from './current-user.decorator';
 import { User } from '../users/entities/user.entity';
 
-/** Stricter limit on credential endpoints to slow down brute force and signup abuse. */
+/**
+ * Stricter limit on credential endpoints (login, register) to slow down brute force and signup abuse.
+ * refresh, logout and me take no password and keep the global limit, so a browser app that calls
+ * them on every page load is not throttled like a login form.
+ */
 const authLimit = () => parseInt(process.env.THROTTLE_AUTH_LIMIT ?? '', 10) || 10;
 
-@Throttle({ default: { limit: authLimit } })
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Throttle({ default: { limit: authLimit } })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDTO) {
     return this.authService.login(loginDto);
   }
 
+  @Throttle({ default: { limit: authLimit } })
   @Post('register')
   async register(@Body() registerDto: UsersDTO) {
     return this.authService.register(registerDto);

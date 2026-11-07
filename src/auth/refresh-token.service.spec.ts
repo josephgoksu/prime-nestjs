@@ -12,12 +12,15 @@ const hash = (s: string) => createHash('sha256').update(s).digest('hex');
 
 describe('RefreshTokenService', () => {
   let service: RefreshTokenService;
+  // The transaction's entity manager hands back the same mocked repository.
+  const tx = { query: vi.fn(), getRepository: vi.fn(() => repo) };
   const repo = {
     create: vi.fn((x: Partial<RefreshToken>) => x),
     save: vi.fn((x: Partial<RefreshToken>) => Promise.resolve({ ...x, id: ID })),
     findOne: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
+    manager: { transaction: vi.fn((fn: (manager: typeof tx) => unknown) => fn(tx)) },
   };
   const logger = { warn: vi.fn(), log: vi.fn() };
 
@@ -67,11 +70,16 @@ describe('RefreshTokenService', () => {
     expect(result.userId).toBe(7);
     expect(repo.update).toHaveBeenCalledWith({ id: ID, revokedAt: expect.anything() }, { revokedAt: expect.any(Date) });
     expect((repo.save.mock.calls[0][0] as RefreshToken).familyId).toBe('fam-1');
+    // The claim and the insert run in one transaction that holds the family lock.
+    expect(repo.manager.transaction).toHaveBeenCalledTimes(1);
+    expect(tx.query).toHaveBeenCalledWith(expect.stringContaining('pg_advisory_xact_lock'), ['fam-1']);
   });
 
   it('rejects malformed, unknown and wrong-secret tokens without touching the family', async () => {
     await expect(service.rotate('garbage')).rejects.toThrow(UnauthorizedException);
     await expect(service.rotate(`not-a-uuid.secret`)).rejects.toThrow(UnauthorizedException);
+    // 36 characters from the uuid alphabet, but not a uuid: PostgreSQL would fail the query with a 500.
+    await expect(service.rotate(`${'-'.repeat(36)}.secret`)).rejects.toThrow(UnauthorizedException);
     expect(repo.findOne).not.toHaveBeenCalled();
 
     repo.findOne.mockResolvedValue(null);
@@ -93,6 +101,14 @@ describe('RefreshTokenService', () => {
     await expect(service.rotate(`${ID}.secret`)).rejects.toThrow(UnauthorizedException);
     expect(repo.update).toHaveBeenCalledWith({ familyId: 'fam-1', revokedAt: expect.anything() }, { revokedAt: expect.any(Date) });
     expect(logger.warn).toHaveBeenCalled();
+  });
+
+  it('does not report reuse for a session that has already ended', async () => {
+    repo.findOne.mockResolvedValue(record({ revokedAt: new Date(Date.now() - 60_000) }));
+    repo.update.mockResolvedValueOnce({ affected: 0 });
+
+    await expect(service.rotate(`${ID}.secret`)).rejects.toThrow(UnauthorizedException);
+    expect(logger.warn).not.toHaveBeenCalled();
   });
 
   it('treats a reuse inside the grace window as a retry and keeps the family', async () => {

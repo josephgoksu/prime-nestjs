@@ -148,6 +148,12 @@ describe('AuthService', () => {
 
       await expect(service.refresh('rt-1')).rejects.toThrow(UnauthorizedException);
       expect(mockRefreshTokens.revokeAllForUser).toHaveBeenCalledWith(1);
+
+      mockRefreshTokens.revokeAllForUser.mockClear();
+      mockUsersService.findById.mockResolvedValue(null);
+
+      await expect(service.refresh('rt-1')).rejects.toThrow(UnauthorizedException);
+      expect(mockRefreshTokens.revokeAllForUser).toHaveBeenCalledWith(1);
     });
   });
 

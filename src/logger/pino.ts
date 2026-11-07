@@ -1,7 +1,7 @@
 import pino, { type DestinationStream, type Logger } from 'pino';
 
 // Top level (objects passed to the logger are merged into the line) and one level down.
-const SECRET_KEYS = ['authorization', 'cookie', 'password', 'access_token'];
+const SECRET_KEYS = ['authorization', 'cookie', 'password', 'access_token', 'refresh_token'];
 
 type Destination = DestinationStream & { flushSync(): void };
 

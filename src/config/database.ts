@@ -19,7 +19,10 @@ export const dataSourceOptions: DataSourceOptions = {
   // Registered in src/migrations/index.ts, as classes for the same reason as entities.
   migrations,
   // gen_random_uuid() is built into PostgreSQL 13+, so no extension (and no superuser) is needed.
+  // 'pgcrypto' only makes TypeORM generate gen_random_uuid() defaults; installExtensions: false
+  // stops it running CREATE EXTENSION "pgcrypto" on every startup.
   uuidExtension: 'pgcrypto',
+  installExtensions: false,
   synchronize: false,
   // Apply pending migrations on startup when DB_RUN_MIGRATIONS=true (the Docker Compose default).
   migrationsRun: process.env.DB_RUN_MIGRATIONS === 'true',

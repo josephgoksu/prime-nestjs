@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { isUUID } from 'class-validator';
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import { IsNull, LessThan, Repository } from 'typeorm';
 import { RefreshToken } from './entities/refresh-token.entity';
@@ -13,6 +14,8 @@ import { LoggerService } from '../logger/logger.service';
  * does not end the session.
  */
 const REUSE_GRACE_MS = 10_000;
+
+const DAY_MS = 86_400_000;
 
 const sha256 = (value: string) => createHash('sha256').update(value).digest('hex');
 
@@ -30,8 +33,8 @@ export class RefreshTokenService {
   ) {}
 
   /** Starts a new session (token family) for a user. */
-  issue(userId: number, familyId: string = randomUUID()): Promise<IssuedRefreshToken> {
-    return this.create(userId, familyId);
+  issue(userId: number): Promise<IssuedRefreshToken> {
+    return this.create(this.tokens, userId, randomUUID());
   }
 
   /**
@@ -45,8 +48,8 @@ export class RefreshTokenService {
     }
 
     if (record.revokedAt) {
-      if (Date.now() - record.revokedAt.getTime() > REUSE_GRACE_MS) {
-        await this.revokeFamily(record.familyId);
+      // Nothing left to revoke means the session already ended (logout, disabled account): not theft.
+      if (Date.now() - record.revokedAt.getTime() > REUSE_GRACE_MS && (await this.revokeFamily(record.familyId)) > 0) {
         this.logger.warn(`Refresh token reuse detected for user ${record.userId}; session ${record.familyId} revoked`);
       }
       throw new UnauthorizedException('Invalid refresh token');
@@ -55,13 +58,14 @@ export class RefreshTokenService {
       throw new UnauthorizedException('Refresh token expired');
     }
 
-    // Claim the token atomically so two concurrent refreshes cannot both succeed.
-    const claimed = await this.tokens.update({ id: record.id, revokedAt: IsNull() }, { revokedAt: new Date() });
-    if (!claimed.affected) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
-
-    return { userId: record.userId, refreshToken: await this.create(record.userId, record.familyId) };
+    return this.withFamilyLock(record.familyId, async (tokens) => {
+      // Claim the token atomically so two concurrent refreshes cannot both succeed.
+      const claimed = await tokens.update({ id: record.id, revokedAt: IsNull() }, { revokedAt: new Date() });
+      if (!claimed.affected) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+      return { userId: record.userId, refreshToken: await this.create(tokens, record.userId, record.familyId) };
+    });
   }
 
   /** Ends the session the token belongs to. Unknown tokens are ignored. */
@@ -80,24 +84,25 @@ export class RefreshTokenService {
   /** Deletes tokens that expired more than a day ago. */
   @Cron(CronExpression.EVERY_DAY_AT_3AM)
   async purgeExpired(): Promise<void> {
-    const result = await this.tokens.delete({ expiresAt: LessThan(new Date(Date.now() - 86_400_000)) });
+    const result = await this.tokens.delete({ expiresAt: LessThan(new Date(Date.now() - DAY_MS)) });
     if (result.affected) {
       this.logger.log(`Purged ${result.affected} expired refresh tokens`);
     }
   }
 
-  private async create(userId: number, familyId: string): Promise<IssuedRefreshToken> {
+  private async create(tokens: Repository<RefreshToken>, userId: number, familyId: string): Promise<IssuedRefreshToken> {
     const secret = randomBytes(32).toString('base64url');
     const ttlDays = this.config.get<number>('jwt.refreshTokenTtlDays', 30);
-    const expiresAt = new Date(Date.now() + ttlDays * 86_400_000);
-    const saved = await this.tokens.save(this.tokens.create({ userId, familyId, tokenHash: sha256(secret), expiresAt, revokedAt: null }));
+    const expiresAt = new Date(Date.now() + ttlDays * DAY_MS);
+    const saved = await tokens.save(tokens.create({ userId, familyId, tokenHash: sha256(secret), expiresAt, revokedAt: null }));
     return { token: `${saved.id}.${secret}`, expiresAt };
   }
 
   /** Token format: <uuid>.<secret>. Looks up by id, then compares the hash in constant time. */
   private async find(presented: string): Promise<RefreshToken | null> {
     const [id, secret, extra] = presented.split('.');
-    if (!id || !secret || extra !== undefined || !/^[0-9a-f-]{36}$/i.test(id)) {
+    // A strict check: PostgreSQL rejects a malformed uuid with an error, which would surface as a 500.
+    if (!id || !secret || extra !== undefined || !isUUID(id)) {
       return null;
     }
     const record = await this.tokens.findOne({ where: { id } });
@@ -109,7 +114,22 @@ export class RefreshTokenService {
     return timingSafeEqual(expected, actual) ? record : null;
   }
 
-  private async revokeFamily(familyId: string): Promise<void> {
-    await this.tokens.update({ familyId, revokedAt: IsNull() }, { revokedAt: new Date() });
+  /** Revokes every live token of a session. Returns how many were revoked. */
+  private async revokeFamily(familyId: string): Promise<number> {
+    const result = await this.withFamilyLock(familyId, (tokens) => tokens.update({ familyId, revokedAt: IsNull() }, { revokedAt: new Date() }));
+    return result.affected ?? 0;
+  }
+
+  /**
+   * Runs fn in a transaction that holds a lock on one token family, so a
+   * rotation (claim + insert of the successor) and a revocation of the same
+   * family never interleave. Without it, a logout that runs between the claim
+   * and the insert misses the new token, and the session outlives the logout.
+   */
+  private withFamilyLock<T>(familyId: string, fn: (tokens: Repository<RefreshToken>) => Promise<T>): Promise<T> {
+    return this.tokens.manager.transaction(async (manager) => {
+      await manager.query('SELECT pg_advisory_xact_lock(hashtext($1))', [familyId]);
+      return fn(manager.getRepository(RefreshToken));
+    });
   }
 }
