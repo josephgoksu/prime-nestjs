@@ -34,6 +34,11 @@ describe('App (e2e)', () => {
     return request(app.getHttpServer()).get('/health-check').expect(200).expect({ message: 'up' });
   });
 
+  it('echoes a request id on every response', async () => {
+    const res = await request(app.getHttpServer()).get('/').set('x-request-id', 'e2e-req-1').expect(200);
+    expect(res.headers['x-request-id']).toBe('e2e-req-1');
+  });
+
   it('GET /health/live reports ok', () => {
     return request(app.getHttpServer()).get('/health/live').expect(200).expect({ status: 'ok' });
   });

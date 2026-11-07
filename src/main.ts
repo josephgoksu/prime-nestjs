@@ -1,16 +1,19 @@
+// Must be the first import: tracing has to patch modules before they load.
+import './instrumentation';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger as NestLogger, ValidationPipe } from '@nestjs/common';
+import { PinoLoggerService } from './logger/pino-logger.service';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
-  const logger = new Logger('Bootstrap');
+  const logger = new NestLogger('Bootstrap');
 
   try {
-    const app = await NestFactory.create<NestExpressApplication>(AppModule);
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, { logger: new PinoLoggerService() });
     const configService = app.get(ConfigService);
 
     // Close the HTTP server and DB pool cleanly on SIGTERM (containers, rolling deploys).

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -12,6 +12,8 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration, { AppConfig } from './config';
 import { validateEnv } from './config/env.validation';
+import { RequestLoggingMiddleware } from './logger/request-logging.middleware';
+import { LoggerModule } from './logger/logger.module';
 
 @Module({
   imports: [
@@ -41,6 +43,7 @@ import { validateEnv } from './config/env.validation';
       },
     }),
     ScheduleModule.forRoot(),
+    LoggerModule,
     HealthModule,
     AuthModule,
     UsersModule,
@@ -49,4 +52,8 @@ import { validateEnv } from './config/env.validation';
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestLoggingMiddleware).forRoutes('{*path}');
+  }
+}

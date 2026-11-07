@@ -73,4 +73,9 @@ describe('validateEnv', () => {
     });
     expect(() => validateEnv({ ...valid, PRIVATE_KEY: ec.privateKey, PUBLIC_KEY: ec.publicKey })).toThrow(/must be an RSA key/);
   });
+
+  it('rejects an unknown LOG_LEVEL', () => {
+    expect(() => validateEnv({ ...valid, LOG_LEVEL: 'verbose' })).toThrow(/LOG_LEVEL/);
+    expect(() => validateEnv({ ...valid, LOG_LEVEL: 'warn' })).not.toThrow();
+  });
 });
