@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtSignOptions } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { UsersModule } from '../users/users.module';
 import { AuthService } from './auth.service';
@@ -18,7 +18,8 @@ import { LoggerModule } from '../logger/logger.module';
       useFactory: (configService: ConfigService) => ({
         privateKey: configService.get<string>('keys.privateKey'),
         publicKey: configService.get<string>('keys.publicKey'),
-        signOptions: { expiresIn: '1h', algorithm: 'RS256' },
+        // Validated by validateEnv(); the config defaults it to 1h.
+        signOptions: { expiresIn: configService.getOrThrow<string>('jwt.expiresIn') as JwtSignOptions['expiresIn'], algorithm: 'RS256' },
       }),
       inject: [ConfigService],
     }),

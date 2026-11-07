@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
+import { getStorageToken, ThrottlerStorageService } from '@nestjs/throttler';
 import { AppModule } from '../src/app.module';
 import { UsersService } from '../src/users/users.service';
 
@@ -31,6 +32,15 @@ describe('App (e2e)', () => {
 
   it('GET /health-check returns up', () => {
     return request(app.getHttpServer()).get('/health-check').expect(200).expect({ message: 'up' });
+  });
+
+  it('GET /health/live reports ok', () => {
+    return request(app.getHttpServer()).get('/health/live').expect(200).expect({ status: 'ok' });
+  });
+
+  it('GET /health/ready checks the database', async () => {
+    const res = await request(app.getHttpServer()).get('/health/ready').expect(200);
+    expect((res.body as { info: { database: { status: string } } }).info.database.status).toBe('up');
   });
 
   it('POST /auth/register creates a user', () => {
@@ -114,5 +124,21 @@ describe('App (e2e)', () => {
       .set({ Authorization: `Bearer ${token}` })
       .send({})
       .expect(403);
+  });
+
+  it('rate limits the auth endpoints', async () => {
+    const previous = process.env.THROTTLE_AUTH_LIMIT;
+    process.env.THROTTLE_AUTH_LIMIT = '1';
+    try {
+      const server = app.getHttpServer();
+      await request(server).post('/auth/login').send({ email, password });
+      await request(server).post('/auth/login').send({ email, password }).expect(429);
+    } finally {
+      // Assigning undefined would store the string "undefined".
+      if (previous === undefined) delete process.env.THROTTLE_AUTH_LIMIT;
+      else process.env.THROTTLE_AUTH_LIMIT = previous;
+      // The 429 blocks the route for a full window whatever the limit is now, so clear it for later tests.
+      app.get<ThrottlerStorageService>(getStorageToken()).storage.clear();
+    }
   });
 });
