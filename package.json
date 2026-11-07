@@ -83,6 +83,7 @@
     "@types/passport-jwt": "4.0.1",
     "@types/supertest": "7.2.1",
     "@vitest/coverage-v8": "5.1.0",
+    "autocannon": "9.0.0",
     "eslint": "9.39.5",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.7",

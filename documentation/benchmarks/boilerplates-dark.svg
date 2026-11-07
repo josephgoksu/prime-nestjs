@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 600" width="880" height="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" role="img" aria-label="Production dependencies of popular NestJS boilerplates">
+<rect width="880" height="600" rx="8" fill="#1a1a19"/>
+<text x="24" y="42" font-size="18" font-weight="700" fill="#f0efec">Production dependencies of popular NestJS boilerplates</text>
+<text x="24" y="64" font-size="13" fill="#c3c2b7">npm install --omit=dev from each package.json, 7 Nov 2026. Fewer is better on every panel.</text>
+<text x="24" y="98" font-size="14" font-weight="600" fill="#f0efec">Known vulnerabilities</text>
+<text x="24" y="115" font-size="12" fill="#c3c2b7">npm audit, production dependencies, all severities</text>
+<text x="164" y="143" font-size="12" text-anchor="end" fill="#f0efec" font-weight="600">prime-nestjs</text>
+<line x1="174" y1="125" x2="174" y2="153" stroke="#33332f"/>
+
+<text x="180" y="143" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">0</text>
+<text x="164" y="173" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">squareboat</text>
+<line x1="174" y1="155" x2="174" y2="183" stroke="#33332f"/>
+
+<text x="180" y="173" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">0</text>
+<text x="164" y="203" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">ack</text>
+<line x1="174" y1="185" x2="174" y2="213" stroke="#33332f"/>
+<path d="M174,188H201.8857142857143Q205.8857142857143,188 205.8857142857143,192V206Q205.8857142857143,210 201.8857142857143,210H174Z" fill="#5c5b56"/>
+<text x="211.8857142857143" y="203" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">6</text>
+<text x="164" y="233" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">awesome-nest</text>
+<line x1="174" y1="215" x2="174" y2="243" stroke="#33332f"/>
+<path d="M174,218H239.0857142857143Q243.0857142857143,218 243.0857142857143,222V236Q243.0857142857143,240 239.0857142857143,240H174Z" fill="#5c5b56"/>
+<text x="249.0857142857143" y="233" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">13</text>
+<text x="164" y="263" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">brocoders</text>
+<line x1="174" y1="245" x2="174" y2="273" stroke="#33332f"/>
+<path d="M174,248H244.4Q248.4,248 248.4,252V266Q248.4,270 244.4,270H174Z" fill="#5c5b56"/>
+<text x="254.4" y="263" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">14</text>
+<text x="164" y="293" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">prisma-starter</text>
+<line x1="174" y1="275" x2="174" y2="303" stroke="#33332f"/>
+<path d="M174,278H356Q360,278 360,282V296Q360,300 356,300H174Z" fill="#5c5b56"/>
+<text x="366" y="293" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">35</text>
+<text x="456" y="98" font-size="14" font-weight="600" fill="#f0efec">High and critical vulnerabilities</text>
+<text x="456" y="115" font-size="12" fill="#c3c2b7">npm audit, production dependencies</text>
+<text x="596" y="143" font-size="12" text-anchor="end" fill="#f0efec" font-weight="600">prime-nestjs</text>
+<line x1="606" y1="125" x2="606" y2="153" stroke="#33332f"/>
+
+<text x="612" y="143" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">0</text>
+<text x="596" y="173" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">squareboat</text>
+<line x1="606" y1="155" x2="606" y2="183" stroke="#33332f"/>
+
+<text x="612" y="173" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">0</text>
+<text x="596" y="203" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">ack</text>
+<line x1="606" y1="185" x2="606" y2="213" stroke="#33332f"/>
+
+<text x="612" y="203" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">0</text>
+<text x="596" y="233" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">awesome-nest</text>
+<line x1="606" y1="215" x2="606" y2="243" stroke="#33332f"/>
+<path d="M606,218H628.5714285714286Q632.5714285714286,218 632.5714285714286,222V236Q632.5714285714286,240 628.5714285714286,240H606Z" fill="#5c5b56"/>
+<text x="638.5714285714286" y="233" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">3</text>
+<text x="596" y="263" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">brocoders</text>
+<line x1="606" y1="245" x2="606" y2="273" stroke="#33332f"/>
+<path d="M606,248H681.7142857142857Q685.7142857142857,248 685.7142857142857,252V266Q685.7142857142857,270 681.7142857142857,270H606Z" fill="#5c5b56"/>
+<text x="691.7142857142857" y="263" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">9</text>
+<text x="596" y="293" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">prisma-starter</text>
+<line x1="606" y1="275" x2="606" y2="303" stroke="#33332f"/>
+<path d="M606,278H788Q792,278 792,282V296Q792,300 788,300H606Z" fill="#5c5b56"/>
+<text x="798" y="293" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">21</text>
+<text x="24" y="342" font-size="14" font-weight="600" fill="#f0efec">Installed packages</text>
+<text x="24" y="359" font-size="12" fill="#c3c2b7">production dependency tree</text>
+<text x="164" y="387" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">squareboat</text>
+<line x1="174" y1="369" x2="174" y2="397" stroke="#33332f"/>
+<path d="M174,372H244.87003610108303Q248.87003610108303,372 248.87003610108303,376V390Q248.87003610108303,394 244.87003610108303,394H174Z" fill="#5c5b56"/>
+<text x="254.87003610108303" y="387" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">223</text>
+<text x="164" y="417" font-size="12" text-anchor="end" fill="#f0efec" font-weight="600">prime-nestjs</text>
+<line x1="174" y1="399" x2="174" y2="427" stroke="#33332f"/>
+<path d="M174,402H258.63537906137185Q262.63537906137185,402 262.63537906137185,406V420Q262.63537906137185,424 258.63537906137185,424H174Z" fill="#3987e5"/>
+<text x="268.63537906137185" y="417" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">264</text>
+<text x="164" y="447" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">prisma-starter</text>
+<line x1="174" y1="429" x2="174" y2="457" stroke="#33332f"/>
+<path d="M174,432H299.5956678700361Q303.5956678700361,432 303.5956678700361,436V450Q303.5956678700361,454 299.5956678700361,454H174Z" fill="#5c5b56"/>
+<text x="309.5956678700361" y="447" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">386</text>
+<text x="164" y="477" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">brocoders</text>
+<line x1="174" y1="459" x2="174" y2="487" stroke="#33332f"/>
+<path d="M174,462H308.9963898916967Q312.9963898916967,462 312.9963898916967,466V480Q312.9963898916967,484 308.9963898916967,484H174Z" fill="#5c5b56"/>
+<text x="318.9963898916967" y="477" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">414</text>
+<text x="164" y="507" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">ack</text>
+<line x1="174" y1="489" x2="174" y2="517" stroke="#33332f"/>
+<path d="M174,492H347.60649819494586Q351.60649819494586,492 351.60649819494586,496V510Q351.60649819494586,514 347.60649819494586,514H174Z" fill="#5c5b56"/>
+<text x="357.60649819494586" y="507" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">529</text>
+<text x="164" y="537" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">awesome-nest</text>
+<line x1="174" y1="519" x2="174" y2="547" stroke="#33332f"/>
+<path d="M174,522H356Q360,522 360,526V540Q360,544 356,544H174Z" fill="#5c5b56"/>
+<text x="366" y="537" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">554</text>
+<text x="456" y="342" font-size="14" font-weight="600" fill="#f0efec">Install size</text>
+<text x="456" y="359" font-size="12" fill="#c3c2b7">node_modules, production only</text>
+<text x="596" y="387" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">squareboat</text>
+<line x1="606" y1="369" x2="606" y2="397" stroke="#33332f"/>
+<path d="M606,372H633.8757062146892Q637.8757062146892,372 637.8757062146892,376V390Q637.8757062146892,394 633.8757062146892,394H606Z" fill="#5c5b56"/>
+<text x="643.8757062146892" y="387" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">91 MB</text>
+<text x="596" y="417" font-size="12" text-anchor="end" fill="#f0efec" font-weight="600">prime-nestjs</text>
+<line x1="606" y1="399" x2="606" y2="427" stroke="#33332f"/>
+<path d="M606,402H661.54802259887Q665.54802259887,402 665.54802259887,406V420Q665.54802259887,424 661.54802259887,424H606Z" fill="#3987e5"/>
+<text x="671.54802259887" y="417" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">170 MB</text>
+<text x="596" y="447" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">prisma-starter</text>
+<line x1="606" y1="429" x2="606" y2="457" stroke="#33332f"/>
+<path d="M606,432H662.5988700564972Q666.5988700564972,432 666.5988700564972,436V450Q666.5988700564972,454 662.5988700564972,454H606Z" fill="#5c5b56"/>
+<text x="672.5988700564972" y="447" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">173 MB</text>
+<text x="596" y="477" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">brocoders</text>
+<line x1="606" y1="459" x2="606" y2="487" stroke="#33332f"/>
+<path d="M606,462H665.4011299435028Q669.4011299435028,462 669.4011299435028,466V480Q669.4011299435028,484 665.4011299435028,484H606Z" fill="#5c5b56"/>
+<text x="675.4011299435028" y="477" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">181 MB</text>
+<text x="596" y="507" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">awesome-nest</text>
+<line x1="606" y1="489" x2="606" y2="517" stroke="#33332f"/>
+<path d="M606,492H706.0338983050847Q710.0338983050847,492 710.0338983050847,496V510Q710.0338983050847,514 706.0338983050847,514H606Z" fill="#5c5b56"/>
+<text x="716.0338983050847" y="507" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">297 MB</text>
+<text x="596" y="537" font-size="12" text-anchor="end" fill="#c3c2b7" font-weight="400">ack</text>
+<line x1="606" y1="519" x2="606" y2="547" stroke="#33332f"/>
+<path d="M606,522H788Q792,522 792,526V540Q792,544 788,544H606Z" fill="#5c5b56"/>
+<text x="798" y="537" font-size="12" fill="#f0efec" font-variant-numeric="tabular-nums">531 MB</text>
+<text x="24" y="580" font-size="11" fill="#8f8e86">Latest versions allowed by each package.json (not each lockfile). pnpm projects installed with --legacy-peer-deps.</text>
+</svg>

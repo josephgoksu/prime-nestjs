@@ -52,3 +52,4 @@ pnpm-lock.yaml
 
 # TypeScript incremental build info
 *.tsbuildinfo
+/bench-results
