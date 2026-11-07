@@ -54,7 +54,16 @@ Membership changes take a row lock on the organization and re-read the caller's 
 
 ## Scoping your own feature
 
-Follow `src/tasks/`:
+Follow `src/tasks/`. Import `OrganizationsModule` in your feature module: `OrganizationGuard` needs the `Membership` repository it exports.
+
+```ts
+@Module({
+  imports: [TypeOrmModule.forFeature([Project]), OrganizationsModule],
+  controllers: [ProjectsController],
+  providers: [ProjectsService],
+})
+export class ProjectsModule {}
+```
 
 ```ts
 @Controller('projects')

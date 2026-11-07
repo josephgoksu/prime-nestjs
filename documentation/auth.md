@@ -58,8 +58,8 @@ sequenceDiagram
 - **Refresh tokens** are opaque strings, `<id>.<secret>`. The database stores only the SHA-256 of the secret, so a database leak does not hand out working tokens.
 - **Rotation**: every refresh revokes the token it used and issues a new one in the same family. `REFRESH_TOKEN_TTL_DAYS` (default 30) is a sliding lifetime: each refresh starts a new period, so it limits how long a session can stay idle.
 - **Reuse detection**: if a token that was already rotated is presented again more than 10 seconds later, the whole family is revoked and that session must log in again. The 10 second window lets a browser with two tabs refresh at the same moment without signing the user out.
-- **Concurrency**: rotation and logout lock the family with a Postgres advisory lock, so two parallel refreshes cannot both succeed.
-- Expired and revoked tokens are deleted by a daily cron job.
+- **Concurrency**: a refresh claims its token with an atomic update, so two parallel refreshes with the same token cannot both succeed. Rotation and logout also take a Postgres advisory lock on the family, so a logout that runs during a refresh cannot miss the token that refresh issues.
+- A daily cron job deletes tokens a day after they expire. Revoked tokens are kept until then, so a reused token is still recognised.
 
 ## Passwords
 
@@ -83,6 +83,7 @@ Roles inside an organization (`owner`, `admin`, `member`) are separate. See [org
 ```bash
 npm run keys:generate              # fills PRIVATE_KEY and PUBLIC_KEY in .env if they are unset
 npm run keys:generate -- --force   # rotates them
+npm run -s keys:generate -- --print # prints a new pair instead, for a secret manager (-s keeps npm's banner out of the output)
 ```
 
-The app refuses to start when the keys are shorter than 2048 bits or do not belong together. After a rotation, existing access tokens stop working and clients get new ones with their refresh token.
+The app refuses to start when the keys are shorter than 2048 bits or do not belong together. After a rotation, existing access tokens stop working and clients get new ones with their refresh token. Use different keys for each environment and keep production keys in your secret manager, not in `.env` files in the repository.

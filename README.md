@@ -33,14 +33,14 @@ A NestJS API starter you can put in production: authentication with rotating ref
 
 **Production**
 - Environment validated at startup, including the JWT key pair
-- Rate limiting per client, stricter on login and registration
+- Rate limiting per client and route, stricter on login and registration
 - Liveness and readiness probes, graceful shutdown
 - JSON logs with request ids and secret redaction
 - OpenTelemetry tracing for HTTP and Postgres, loaded only when you turn it on
 - Docker image on Node 24 Alpine, non-root
 
 **Developer experience**
-- `./setup.sh` from clone to running API in one command
+- `./setup.sh` sets up `.env`, keys, dependencies, Postgres and migrations in one command (`--docker` also starts the API)
 - Swagger at `/api`, Vitest unit and e2e tests, ESLint 9, Prettier, commitlint
 - CI on Node 22 and 24 with a real Postgres, CodeQL
 - `AGENTS.md` for coding agents
@@ -87,7 +87,7 @@ The NestJS 12 version against the previous NestJS 11 version, on the same machin
   <img src="documentation/benchmarks/before-after-light.svg" alt="Before and after: login throughput up from 15 to 26.5 requests per second; health check p99 while logins run down from 4,277 ms to 9 ms; health check and authenticated read throughput lower because every request now does more work">
 </picture>
 
-Password hashing no longer blocks the event loop, so a burst of logins does not stall every other request. Simple endpoints are slower than before because each request now goes through rate limiting, request logging and tenant scoping.
+Password hashing no longer blocks the event loop, so a burst of logins does not stall every other request. Simple endpoints are slower than before: every request now gets a request id, and API requests also go through rate limiting, request logging and tenant scoping.
 
 Production dependencies compared with other popular NestJS boilerplates:
 

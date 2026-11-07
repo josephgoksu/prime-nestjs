@@ -1,6 +1,6 @@
 # Configuration
 
-All configuration comes from environment variables. `.env` is loaded in development, and `.env.example` lists every variable. The app validates them at startup and exits with a list of problems instead of starting half-configured.
+All configuration comes from environment variables. `.env` is loaded whenever it exists (variables already set in the environment win), and `.env.example` lists every variable. The app validates them at startup and exits with a list of problems instead of starting half-configured.
 
 ## Variables
 
@@ -8,7 +8,7 @@ All configuration comes from environment variables. `.env` is loaded in developm
 |---|---|---|
 | `NODE_ENV` | `development` | `production` turns off Swagger and switches logs to JSON |
 | `PORT` | `3000` | |
-| `ALLOWED_ORIGINS` | | Comma-separated CORS origins |
+| `ALLOWED_ORIGINS` | `http://localhost:3000` | Comma-separated CORS origins |
 | `TRUST_PROXY` | `false` | Behind a proxy or load balancer: a hop count (`1`) or the proxy subnets. Avoid `true`, which lets clients choose their own IP and get around rate limits |
 | `POSTGRES_HOST` | | Required. `localhost` on your machine; Docker Compose sets `database` for the app container |
 | `POSTGRES_PORT` | `5432` | |
@@ -23,7 +23,7 @@ All configuration comes from environment variables. `.env` is loaded in developm
 | `JWT_EXPIRES_IN` | `15m` | Access token lifetime: a number with a unit (`15m`, `1h`, `7d`) |
 | `REFRESH_TOKEN_TTL_DAYS` | `30` | 1 to 365. Sliding: each refresh starts a new period |
 | `THROTTLE_TTL_MS` | `60000` | Rate-limit window, at least 1000 |
-| `THROTTLE_LIMIT` | `100` | Requests per window per client IP |
+| `THROTTLE_LIMIT` | `100` | Requests per window per client IP, counted separately for each route |
 | `THROTTLE_AUTH_LIMIT` | `10` | Stricter limit for login, register and adding members |
 | `LOG_LEVEL` | `info` in production, `debug` otherwise | `trace`, `debug`, `info`, `warn`, `error`, `fatal` or `silent` |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | | Turns on tracing. See [observability.md](./observability.md) |
@@ -31,7 +31,7 @@ All configuration comes from environment variables. `.env` is loaded in developm
 | `OTEL_SERVICE_NAME` | `prime-nestjs` | |
 | `OTEL_SDK_DISABLED` | `false` | `true` turns tracing off even with an endpoint |
 
-Booleans must be `true` or `false`, and numbers must be plain digits. A typo like `POSTGRES_SSL=yes` stops the app at startup.
+`POSTGRES_SSL` and `DB_RUN_MIGRATIONS` must be `true` or `false`, and `PORT`, `POSTGRES_PORT`, `REFRESH_TOKEN_TTL_DAYS` and the `THROTTLE_*` numbers must be plain digits. A typo like `POSTGRES_SSL=yes` stops the app at startup. The other variables are not validated: `POSTGRES_SSL_REJECT_UNAUTHORIZED` keeps certificate checks on for anything but `false`, `OTEL_SDK_DISABLED` only reacts to `true`, and a `POSTGRES_POOL_SIZE` that is not a number falls back to 10.
 
 ## Adding a variable
 
@@ -41,7 +41,7 @@ Booleans must be `true` or `false`, and numbers must be plain digits. A typo lik
 
 ## Rate limiting
 
-Every route is rate limited per client IP with an in-memory store. Health endpoints are exempt. With several app instances each one counts separately: use a shared store such as `@nest-lab/throttler-storage-redis` if you need one global limit.
+Every route is rate limited per client IP with an in-memory store. Each route keeps its own count, so a client can make `THROTTLE_LIMIT` requests to every route in each window, and `THROTTLE_AUTH_LIMIT` applies to login, register and adding members separately. Health endpoints are exempt. With several app instances each one counts separately: use a shared store such as `@nest-lab/throttler-storage-redis` if you need one global limit.
 
 ## Database and migrations
 

@@ -37,14 +37,14 @@ OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
 OTEL_SERVICE_NAME=my-api
 ```
 
-Any OTLP/HTTP backend works: an OpenTelemetry Collector, Jaeger, Grafana Tempo, Honeycomb, Datadog, New Relic and others. You get spans for incoming and outgoing HTTP requests and for every Postgres query, and each log line carries `trace_id` and `span_id`. The standard `OTEL_*` variables apply, for example `OTEL_EXPORTER_OTLP_HEADERS` for an API key and `OTEL_TRACES_SAMPLER` for sampling.
+Any OTLP/HTTP backend works: an OpenTelemetry Collector, Jaeger, Grafana Tempo, Honeycomb, Datadog, New Relic and others. You get spans for incoming and outgoing HTTP requests and for every Postgres query, and log lines written while a request is traced carry `trace_id` and `span_id`. The standard `OTEL_*` variables apply, for example `OTEL_EXPORTER_OTLP_HEADERS` for an API key and `OTEL_TRACES_SAMPLER` for sampling.
 
 Try it locally with Jaeger:
 
 ```bash
-docker run --rm -p 16686:16686 -p 4318:4318 jaegertracing/all-in-one
+docker run -d --rm --name jaeger -p 16686:16686 -p 4318:4318 jaegertracing/all-in-one
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318 npm run start:dev
-# open http://localhost:16686
+# open http://localhost:16686, and run `docker stop jaeger` when you are done
 ```
 
 Nest route and Express middleware spans are not included yet: their instrumentations do not support NestJS 12 (ESM) at the time of writing. The HTTP span still records the method, URL and status.
