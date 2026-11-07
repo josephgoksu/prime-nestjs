@@ -1,0 +1,89 @@
+{
+  "runtime": {
+    "footnote": "Median of 3 interleaved runs, autocannon, 15 s each after warm-up. Scripts and raw numbers: documentation/BENCHMARKS.md.",
+    "panels": [
+      { "title": "Login throughput", "note": "POST /auth/login, req/s, higher is better", "unit": "req/s", "before": 15.1, "after": 26.5 },
+      { "title": "Health check p99 while logins run", "note": "GET /health-check, ms, lower is better", "unit": "ms", "before": 4277, "after": 9 },
+      { "title": "Health check throughput", "note": "GET /health-check, req/s, higher is better", "unit": "req/s", "before": 8281, "after": 7897 },
+      {
+        "title": "Authenticated read throughput",
+        "note": "GET /tasks with a JWT, req/s, higher is better",
+        "unit": "req/s",
+        "before": 1519,
+        "after": 1134
+      }
+    ]
+  },
+  "boilerplates": {
+    "date": "7 Nov 2026",
+    "footnote": "Latest versions allowed by each package.json (not each lockfile). pnpm projects installed with --legacy-peer-deps.",
+    "panels": [
+      { "key": "vulns", "title": "Known vulnerabilities", "note": "npm audit, production dependencies, all severities", "unit": "" },
+      { "key": "highcrit", "title": "High and critical vulnerabilities", "note": "npm audit, production dependencies", "unit": "" },
+      { "key": "packages", "title": "Installed packages", "note": "production dependency tree", "unit": "" },
+      { "key": "size", "title": "Install size", "note": "node_modules, production only", "unit": "MB" }
+    ],
+    "repos": [
+      {
+        "name": "prime-nestjs",
+        "repo": "josephgoksu/prime-nestjs",
+        "stars": 493,
+        "nest": "12.4",
+        "packages": 264,
+        "size": 170,
+        "vulns": 0,
+        "highcrit": 0
+      },
+      {
+        "name": "brocoders",
+        "repo": "brocoders/nestjs-boilerplate",
+        "stars": 4423,
+        "nest": "11.1",
+        "packages": 414,
+        "size": 181,
+        "vulns": 14,
+        "highcrit": 9
+      },
+      {
+        "name": "awesome-nest",
+        "repo": "NarHakobyan/awesome-nest-boilerplate",
+        "stars": 2829,
+        "nest": "11.1",
+        "packages": 554,
+        "size": 297,
+        "vulns": 13,
+        "highcrit": 3
+      },
+      {
+        "name": "prisma-starter",
+        "repo": "notiz-dev/nestjs-prisma-starter",
+        "stars": 2540,
+        "nest": "10.1",
+        "packages": 386,
+        "size": 173,
+        "vulns": 35,
+        "highcrit": 21
+      },
+      {
+        "name": "squareboat",
+        "repo": "squareboat/nestjs-boilerplate",
+        "stars": 789,
+        "nest": "12.3",
+        "packages": 223,
+        "size": 91,
+        "vulns": 0,
+        "highcrit": 0
+      },
+      {
+        "name": "ack",
+        "repo": "andrechristikan/ack-nestjs-boilerplate",
+        "stars": 704,
+        "nest": "12.0",
+        "packages": 529,
+        "size": 531,
+        "vulns": 6,
+        "highcrit": 0
+      }
+    ]
+  }
+}

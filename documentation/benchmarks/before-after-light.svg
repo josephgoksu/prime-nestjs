@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 360" width="880" height="360" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" role="img" aria-label="prime-nestjs: v1 (NestJS 11) vs now (NestJS 12)">
+<rect width="880" height="360" rx="8" fill="#fcfcfb"/>
+<text x="24" y="42" font-size="18" font-weight="700" fill="#0b0b0b">prime-nestjs: v1 (NestJS 11) vs now (NestJS 12)</text>
+<text x="24" y="64" font-size="13" fill="#52514e">Same 4 vCPU machine and Postgres 16, production build. Blue is now.</text>
+<text x="24" y="98" font-size="14" font-weight="600" fill="#0b0b0b">Login throughput</text>
+<text x="24" y="115" font-size="12" fill="#52514e">POST /auth/login, req/s, higher is better</text>
+<text x="164" y="143" font-size="12" text-anchor="end" fill="#52514e" font-weight="400">v1 (NestJS 11)</text>
+<line x1="174" y1="125" x2="174" y2="153" stroke="#e4e3df"/>
+<path d="M174,128H275.98490566037736Q279.98490566037736,128 279.98490566037736,132V146Q279.98490566037736,150 275.98490566037736,150H174Z" fill="#b9b8b2"/>
+<text x="285.98490566037736" y="143" font-size="12" fill="#0b0b0b" font-variant-numeric="tabular-nums">15.1 req/s</text>
+<text x="164" y="173" font-size="12" text-anchor="end" fill="#0b0b0b" font-weight="600">now</text>
+<line x1="174" y1="155" x2="174" y2="183" stroke="#e4e3df"/>
+<path d="M174,158H356Q360,158 360,162V176Q360,180 356,180H174Z" fill="#2a78d6"/>
+<text x="366" y="173" font-size="12" fill="#0b0b0b" font-variant-numeric="tabular-nums">26.5 req/s</text>
+<text x="456" y="98" font-size="14" font-weight="600" fill="#0b0b0b">Health check p99 while logins run</text>
+<text x="456" y="115" font-size="12" fill="#52514e">GET /health-check, ms, lower is better</text>
+<text x="596" y="143" font-size="12" text-anchor="end" fill="#52514e" font-weight="400">v1 (NestJS 11)</text>
+<line x1="606" y1="125" x2="606" y2="153" stroke="#e4e3df"/>
+<path d="M606,128H788Q792,128 792,132V146Q792,150 788,150H606Z" fill="#b9b8b2"/>
+<text x="798" y="143" font-size="12" fill="#0b0b0b" font-variant-numeric="tabular-nums">4,277 ms</text>
+<text x="596" y="173" font-size="12" text-anchor="end" fill="#0b0b0b" font-weight="600">now</text>
+<line x1="606" y1="155" x2="606" y2="183" stroke="#e4e3df"/>
+<path d="M606,158H607Q608,158 608,159V179Q608,180 607,180H606Z" fill="#2a78d6"/>
+<text x="614" y="173" font-size="12" fill="#0b0b0b" font-variant-numeric="tabular-nums">9 ms</text>
+<text x="24" y="222" font-size="14" font-weight="600" fill="#0b0b0b">Health check throughput</text>
+<text x="24" y="239" font-size="12" fill="#52514e">GET /health-check, req/s, higher is better</text>
+<text x="164" y="267" font-size="12" text-anchor="end" fill="#52514e" font-weight="400">v1 (NestJS 11)</text>
+<line x1="174" y1="249" x2="174" y2="277" stroke="#e4e3df"/>
+<path d="M174,252H356Q360,252 360,256V270Q360,274 356,274H174Z" fill="#b9b8b2"/>
+<text x="366" y="267" font-size="12" fill="#0b0b0b" font-variant-numeric="tabular-nums">8,281 req/s</text>
+<text x="164" y="297" font-size="12" text-anchor="end" fill="#0b0b0b" font-weight="600">now</text>
+<line x1="174" y1="279" x2="174" y2="307" stroke="#e4e3df"/>
+<path d="M174,282H347.3749547156141Q351.3749547156141,282 351.3749547156141,286V300Q351.3749547156141,304 347.3749547156141,304H174Z" fill="#2a78d6"/>
+<text x="357.3749547156141" y="297" font-size="12" fill="#0b0b0b" font-variant-numeric="tabular-nums">7,897 req/s</text>
+<text x="456" y="222" font-size="14" font-weight="600" fill="#0b0b0b">Authenticated read throughput</text>
+<text x="456" y="239" font-size="12" fill="#52514e">GET /tasks with a JWT, req/s, higher is better</text>
+<text x="596" y="267" font-size="12" text-anchor="end" fill="#52514e" font-weight="400">v1 (NestJS 11)</text>
+<line x1="606" y1="249" x2="606" y2="277" stroke="#e4e3df"/>
+<path d="M606,252H788Q792,252 792,256V270Q792,274 788,274H606Z" fill="#b9b8b2"/>
+<text x="798" y="267" font-size="12" fill="#0b0b0b" font-variant-numeric="tabular-nums">1,519 req/s</text>
+<text x="596" y="297" font-size="12" text-anchor="end" fill="#0b0b0b" font-weight="600">now</text>
+<line x1="606" y1="279" x2="606" y2="307" stroke="#e4e3df"/>
+<path d="M606,282H740.8571428571429Q744.8571428571429,282 744.8571428571429,286V300Q744.8571428571429,304 740.8571428571429,304H606Z" fill="#2a78d6"/>
+<text x="750.8571428571429" y="297" font-size="12" fill="#0b0b0b" font-variant-numeric="tabular-nums">1,134 req/s</text>
+<text x="24" y="340" font-size="11" fill="#8a8984">Median of 3 interleaved runs, autocannon, 15 s each after warm-up. Scripts and raw numbers: documentation/BENCHMARKS.md.</text>
+</svg>
