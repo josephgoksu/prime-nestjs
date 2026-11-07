@@ -18,7 +18,10 @@ node -e '
 ' "$SRC/package.json" "$WORK"
 cd "$WORK"
 npm install ${2:-} --omit=dev --ignore-scripts --no-audit --no-fund --loglevel=error > /dev/null
-packages=$(npm ls --omit=dev --all --parseable 2>/dev/null | tail -n +2 | sort -u | wc -l)
+# Both commands still print their result when they exit 1: npm ls when a peer dependency is
+# missing (as with --legacy-peer-deps), npm audit whenever it finds a vulnerability. The
+# `|| true` keeps pipefail and set -e from ending the script there without any output.
+packages=$({ npm ls --omit=dev --all --parseable 2>/dev/null || true; } | tail -n +2 | sort -u | wc -l)
 size=$(du -sm node_modules | cut -f1)
-audit=$(npm audit --omit=dev --json 2>/dev/null | node -pe 'const v = JSON.parse(require("fs").readFileSync(0)).metadata.vulnerabilities; `low ${v.low} moderate ${v.moderate} high ${v.high} critical ${v.critical}`')
+audit=$({ npm audit --omit=dev --json 2>/dev/null || true; } | node -pe 'const v = JSON.parse(require("fs").readFileSync(0)).metadata.vulnerabilities; `low ${v.low} moderate ${v.moderate} high ${v.high} critical ${v.critical}`')
 echo "$(basename "$SRC"): packages $packages, size ${size} MB, vulnerabilities: $audit"
