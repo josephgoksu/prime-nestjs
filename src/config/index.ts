@@ -13,6 +13,7 @@ export interface AppConfig {
   };
   jwt: {
     expiresIn: string;
+    refreshTokenTtlDays: number;
   };
   throttle: {
     ttlMs: number;
@@ -42,7 +43,8 @@ export default (): AppConfig => ({
     publicKey: (process.env.PUBLIC_KEY ?? '').replace(/\\n/gm, '\n'),
   },
   jwt: {
-    expiresIn: process.env.JWT_EXPIRES_IN || '1h',
+    expiresIn: process.env.JWT_EXPIRES_IN || '15m',
+    refreshTokenTtlDays: int(process.env.REFRESH_TOKEN_TTL_DAYS, 30),
   },
   throttle: {
     ttlMs: int(process.env.THROTTLE_TTL_MS, 60_000),

@@ -8,6 +8,8 @@ describe('AuthController', () => {
   const mockAuthService = {
     login: vi.fn(),
     register: vi.fn(),
+    refresh: vi.fn(),
+    logout: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -71,6 +73,22 @@ describe('AuthController', () => {
 
       expect(mockAuthService.register).toHaveBeenCalledWith(registerDto);
       expect(result).toEqual(authResponse);
+    });
+  });
+
+  describe('refresh and logout', () => {
+    it('pass the refresh token through', async () => {
+      mockAuthService.refresh.mockResolvedValue({ access_token: 'a' });
+      await expect(controller.refresh({ refresh_token: 'rt' })).resolves.toEqual({ access_token: 'a' });
+      await controller.logout({ refresh_token: 'rt' });
+      expect(mockAuthService.logout).toHaveBeenCalledWith('rt');
+    });
+  });
+
+  describe('me', () => {
+    it('returns the profile without the password', () => {
+      const user = { id: 1, name: 'A', email: 'a@x.co', roles: 'standard', isActive: true, password: 'hash' };
+      expect(controller.me(user as never)).toEqual({ id: 1, name: 'A', email: 'a@x.co', roles: 'standard', isActive: true });
     });
   });
 });

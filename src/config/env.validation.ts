@@ -85,6 +85,13 @@ export class EnvironmentVariables {
   @Transform(toInt)
   @IsInt()
   @Min(1)
+  @Max(365)
+  REFRESH_TOKEN_TTL_DAYS?: number;
+
+  @IsOptional()
+  @Transform(toInt)
+  @IsInt()
+  @Min(1)
   THROTTLE_LIMIT?: number;
 
   @IsOptional()
