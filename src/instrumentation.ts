@@ -14,37 +14,22 @@
  * Standard OTEL_* variables apply, for example OTEL_SERVICE_NAME,
  * OTEL_EXPORTER_OTLP_HEADERS and OTEL_TRACES_SAMPLER / OTEL_TRACES_SAMPLER_ARG.
  */
-import { NodeSDK } from '@opentelemetry/sdk-node';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
-import { PgInstrumentation } from '@opentelemetry/instrumentation-pg';
-import { PinoInstrumentation } from '@opentelemetry/instrumentation-pino';
-import { resourceFromAttributes } from '@opentelemetry/resources';
-import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
-import { HEALTH_PATHS } from './health/health-paths';
+import type { NodeSDK } from '@opentelemetry/sdk-node';
 
-const enabled =
-  process.env.OTEL_SDK_DISABLED !== 'true' && Boolean(process.env.OTEL_EXPORTER_OTLP_ENDPOINT || process.env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT);
+/**
+ * Tracing is on when an OTLP endpoint is set and OTEL_SDK_DISABLED is not true.
+ * Values are trimmed and OTEL_SDK_DISABLED is case-insensitive, as in the SDK, so
+ * the SDK is not loaded when it would stay off anyway.
+ */
+export const tracingEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  env.OTEL_SDK_DISABLED?.trim().toLowerCase() !== 'true' &&
+  Boolean(env.OTEL_EXPORTER_OTLP_ENDPOINT?.trim() || env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT?.trim());
 
-export const otelSdk = enabled
-  ? new NodeSDK({
-      resource: resourceFromAttributes({ [ATTR_SERVICE_NAME]: process.env.OTEL_SERVICE_NAME || 'prime-nestjs' }),
-      traceExporter: new OTLPTraceExporter(),
-      // Tracing only. Without these the SDK also exports logs and metrics over OTLP
-      // by default, which trace-only backends such as Jaeger reject. Logs go to stdout.
-      logRecordProcessors: [],
-      metricReaders: [],
-      instrumentations: [
-        // Probes would otherwise produce most of the spans.
-        new HttpInstrumentation({ ignoreIncomingRequestHook: (req) => HEALTH_PATHS.has((req.url ?? '').split('?')[0]) }),
-        new PgInstrumentation(),
-        // Adds trace_id and span_id to every log line.
-        new PinoInstrumentation({ disableLogSending: true }),
-      ],
-    })
-  : undefined;
-
-otelSdk?.start();
+// A synchronous require, not an import: the SDK must patch http, pg and pino before
+// main.ts loads them, and only when tracing is on. Node resolves it to the compiled
+// tracing.js, so it does not work under Vitest: the Vitest configs set OTEL_SDK_DISABLED.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+export const otelSdk: NodeSDK | undefined = tracingEnabled() ? (require('./tracing') as typeof import('./tracing')).startTracing() : undefined;
 
 /**
  * Exports the remaining spans and stops tracing. Runs from LoggerModule's

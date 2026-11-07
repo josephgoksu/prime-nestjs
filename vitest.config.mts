@@ -9,6 +9,9 @@ export default defineConfig({
     root: './',
     include: ['src/**/*.spec.ts'],
     environment: 'node',
+    // Tracing stays off even when the shell sets an OTLP endpoint: instrumentation.ts
+    // requires the compiled tracing.js, which Node cannot resolve from src/ under Vitest.
+    env: { OTEL_SDK_DISABLED: 'true' },
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],

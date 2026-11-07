@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import { rootLogger } from './pino';
-import { HEALTH_PATHS } from '../health/health-paths';
+import { isHealthPath } from '../health/health-paths';
 
 export const REQUEST_ID_HEADER = 'x-request-id';
 const VALID_REQUEST_ID = /^[\w.:-]{1,128}$/;
@@ -29,7 +29,7 @@ export function requestLogging(req: Request & { id?: string }, res: Response, ne
   res.setHeader(REQUEST_ID_HEADER, id);
 
   const path = req.originalUrl.split('?')[0];
-  if (!HEALTH_PATHS.has(path)) {
+  if (!isHealthPath(path)) {
     const start = process.hrtime.bigint();
     // 'close' fires for every response, after 'finish' or when the connection drops first.
     res.once('close', () => {
