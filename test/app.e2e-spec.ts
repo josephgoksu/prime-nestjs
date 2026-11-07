@@ -68,8 +68,43 @@ describe('App (e2e)', () => {
 
     await request(server).get(`/tasks/${id}`).set(auth).expect(200);
     await request(server).patch(`/tasks/${id}`).set(auth).send({ status: 'done' }).expect(200);
-    await request(server).delete(`/tasks/${id}`).set(auth).expect(200);
+    await request(server).delete(`/tasks/${id}`).set(auth).expect(204);
     await request(server).get(`/tasks/${id}`).set(auth).expect(404);
+  });
+
+  it('logs in with a differently cased email', () => {
+    return request(app.getHttpServer()).post('/auth/login').send({ email: email.toUpperCase(), password }).expect(200);
+  });
+
+  it("does not expose one user's tasks to another user", async () => {
+    const server = app.getHttpServer();
+    const owner = { Authorization: `Bearer ${token}` };
+
+    const otherEmail = `other-${Date.now()}@example.com`;
+    await request(server).post('/auth/register').send({ email: otherEmail, name: 'Other', password }).expect(201);
+    const login = await request(server).post('/auth/login').send({ email: otherEmail, password }).expect(200);
+    const other = { Authorization: `Bearer ${(login.body as { access_token: string }).access_token}` };
+
+    const created = await request(server).post('/tasks').set(owner).send({ title: 'private' }).expect(201);
+    const id = (created.body as { id: number }).id;
+
+    const list = await request(server).get('/tasks').set(other).expect(200);
+    expect((list.body as { id: number }[]).map((t) => t.id)).not.toContain(id);
+    await request(server).get(`/tasks/${id}`).set(other).expect(404);
+    await request(server).patch(`/tasks/${id}`).set(other).send({ title: 'hijacked' }).expect(404);
+    await request(server).delete(`/tasks/${id}`).set(other).expect(404);
+
+    const mine = await request(server).get(`/tasks/${id}`).set(owner).expect(200);
+    expect((mine.body as { title: string }).title).toBe('private');
+  });
+
+  it('never returns the password hash', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/echo')
+      .set({ Authorization: `Bearer ${token}` })
+      .send({ ping: 1 })
+      .expect(201);
+    expect(JSON.stringify(res.body)).not.toContain('scrypt$');
   });
 
   it('POST /premium-echo forbids a standard user', () => {

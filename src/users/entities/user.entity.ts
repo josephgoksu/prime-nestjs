@@ -13,7 +13,8 @@ export class User {
   @Column()
   email: string;
 
-  @Column()
+  /** Never selected by default. Load it explicitly with UsersService.findByEmailWithPassword(). */
+  @Column({ select: false })
   password: string;
 
   @Column({ default: true })

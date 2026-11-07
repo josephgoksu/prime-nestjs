@@ -11,6 +11,8 @@ describe('UsersService', () => {
     find: vi.fn(),
     findOne: vi.fn(),
     delete: vi.fn(),
+    update: vi.fn(),
+    createQueryBuilder: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -88,6 +90,31 @@ describe('UsersService', () => {
 
       expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { email } });
       expect(result).toEqual(user);
+    });
+  });
+
+  describe('findByEmailWithPassword', () => {
+    it('selects the password hash explicitly', async () => {
+      const user = { id: 1, email: 'test@example.com', password: 'hash' };
+      const qb = {
+        addSelect: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        getOne: vi.fn().mockResolvedValue(user),
+      };
+      mockRepository.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.findByEmailWithPassword('test@example.com');
+
+      expect(qb.addSelect).toHaveBeenCalledWith('user.password');
+      expect(qb.where).toHaveBeenCalledWith('user.email = :email', { email: 'test@example.com' });
+      expect(result).toEqual(user);
+    });
+  });
+
+  describe('updatePassword', () => {
+    it('updates only the password column', async () => {
+      await service.updatePassword(1, 'new-hash');
+      expect(mockRepository.update).toHaveBeenCalledWith(1, { password: 'new-hash' });
     });
   });
 

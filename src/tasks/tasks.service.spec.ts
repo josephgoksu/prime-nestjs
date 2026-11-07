@@ -57,9 +57,9 @@ describe('TasksService', () => {
       mockRepository.create.mockReturnValue(task);
       mockRepository.save.mockResolvedValue(task);
 
-      const result = await service.create(createTaskDto);
+      const result = await service.create(7, createTaskDto);
 
-      expect(mockRepository.create).toHaveBeenCalledWith(createTaskDto);
+      expect(mockRepository.create).toHaveBeenCalledWith({ ...createTaskDto, ownerId: 7 });
       expect(mockRepository.save).toHaveBeenCalledWith(task);
       expect(result).toEqual(task);
     });
@@ -74,9 +74,9 @@ describe('TasksService', () => {
 
       mockRepository.find.mockResolvedValue(tasks);
 
-      const result = await service.findAll();
+      const result = await service.findAll(7);
 
-      expect(mockRepository.find).toHaveBeenCalled();
+      expect(mockRepository.find).toHaveBeenCalledWith({ where: { ownerId: 7 }, order: { id: 'ASC' } });
       expect(result).toEqual(tasks);
     });
   });
@@ -87,16 +87,16 @@ describe('TasksService', () => {
 
       mockRepository.findOne.mockResolvedValue(task);
 
-      const result = await service.findOne(1);
+      const result = await service.findOne(7, 1);
 
-      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id: 1, ownerId: 7 } });
       expect(result).toEqual(task);
     });
 
     it('should throw NotFoundException when task not found', async () => {
       mockRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.findOne(999)).rejects.toThrow(NotFoundException);
+      await expect(service.findOne(7, 999)).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -109,7 +109,7 @@ describe('TasksService', () => {
       mockRepository.findOne.mockResolvedValue(existingTask);
       mockRepository.save.mockResolvedValue(updatedTask);
 
-      const result = await service.update(1, updateTaskDto);
+      const result = await service.update(7, 1, updateTaskDto);
 
       expect(result).toEqual(updatedTask);
     });
@@ -117,7 +117,7 @@ describe('TasksService', () => {
     it('should throw NotFoundException when updating non-existent task', async () => {
       mockRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.update(999, { title: 'Test' })).rejects.toThrow(NotFoundException);
+      await expect(service.update(7, 999, { title: 'Test' })).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -128,7 +128,7 @@ describe('TasksService', () => {
       mockRepository.findOne.mockResolvedValue(task);
       mockRepository.remove.mockResolvedValue(task);
 
-      await service.remove(1);
+      await service.remove(7, 1);
 
       expect(mockRepository.remove).toHaveBeenCalledWith(task);
     });
@@ -136,24 +136,14 @@ describe('TasksService', () => {
     it('should throw NotFoundException when removing non-existent task', async () => {
       mockRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.remove(999)).rejects.toThrow(NotFoundException);
+      await expect(service.remove(7, 999)).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('scheduled methods', () => {
-    it('should call logger.debug when handleCron is called', () => {
+    it('logs from the example cron job', () => {
       service.handleCron();
-      expect(mockLoggerService.debug).toHaveBeenCalledWith('Cron job running every 10 seconds');
-    });
-
-    it('should call logger.debug when handleInterval is called', () => {
-      service.handleInterval();
-      expect(mockLoggerService.debug).toHaveBeenCalledWith('Called every 10 seconds');
-    });
-
-    it('should call logger.debug when handleTimeout is called', () => {
-      service.handleTimeout();
-      expect(mockLoggerService.debug).toHaveBeenCalledWith('Called once after 5 seconds');
+      expect(mockLoggerService.debug).toHaveBeenCalledWith('Hourly example cron job');
     });
   });
 });
