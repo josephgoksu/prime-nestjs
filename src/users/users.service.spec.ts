@@ -7,10 +7,10 @@ describe('UsersService', () => {
   let service: UsersService;
 
   const mockRepository = {
-    save: jest.fn(),
-    find: jest.fn(),
-    findOne: jest.fn(),
-    delete: jest.fn(),
+    save: vi.fn(),
+    find: vi.fn(),
+    findOne: vi.fn(),
+    delete: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -28,7 +28,7 @@ describe('UsersService', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -71,7 +71,7 @@ describe('UsersService', () => {
       const result = await service.findAll();
 
       expect(mockRepository.find).toHaveBeenCalledWith({
-        select: ['id', 'name', 'email', 'isActive', 'roles'],
+        select: { id: true, name: true, email: true, isActive: true, roles: true },
       });
       expect(result).toEqual(users);
     });

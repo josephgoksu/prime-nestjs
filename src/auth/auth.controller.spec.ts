@@ -6,8 +6,8 @@ describe('AuthController', () => {
   let controller: AuthController;
 
   const mockAuthService = {
-    login: jest.fn(),
-    register: jest.fn(),
+    login: vi.fn(),
+    register: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -25,7 +25,7 @@ describe('AuthController', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should be defined', () => {

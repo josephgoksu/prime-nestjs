@@ -6,9 +6,38 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [22, 24]
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: prime_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: prime_test
 
     steps:
       - uses: actions/checkout@v4
@@ -16,20 +45,43 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate throwaway JWT keys
+        run: |
+          openssl genrsa -out private.pem 2048
+          openssl rsa -in private.pem -pubout -out public.pem
+          {
+            echo "PRIVATE_KEY<<EOF"; cat private.pem; echo "EOF"
+            echo "PUBLIC_KEY<<EOF"; cat public.pem; echo "EOF"
+          } >> "$GITHUB_ENV"
+
+      # Lint, format and audit results do not depend on the Node version,
+      # so run them on one matrix leg only.
       - name: Lint
-        run: npm run lint
+        if: matrix.node-version == 24
+        run: npm run lint:check
+
+      - name: Format check
+        if: matrix.node-version == 24
+        run: npm run format:check
 
       - name: Build
-        env:
-          PRIVATE_KEY: "-----BEGIN RSA PRIVATE KEY-----\nstub\n-----END RSA PRIVATE KEY-----"
-          PUBLIC_KEY: "-----BEGIN PUBLIC KEY-----\nstub\n-----END PUBLIC KEY-----"
         run: npm run build
 
       - name: Unit tests
         run: npm test
+
+      - name: Create schema
+        run: npm run schema:sync
+
+      - name: E2E tests
+        run: npm run test:e2e
+
+      - name: Audit production dependencies
+        if: matrix.node-version == 24
+        run: npm audit --omit=dev --audit-level=high

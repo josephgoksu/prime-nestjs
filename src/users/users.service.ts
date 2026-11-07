@@ -20,7 +20,7 @@ export class UsersService {
 
   async findAll(): Promise<User[]> {
     return this.usersRepository.find({
-      select: ['id', 'name', 'email', 'isActive', 'roles'],
+      select: { id: true, name: true, email: true, isActive: true, roles: true },
     });
   }
 
