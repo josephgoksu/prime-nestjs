@@ -3,6 +3,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
+import { UsersService } from '../src/users/users.service';
 
 describe('App (e2e)', () => {
   let app: INestApplication<App>;
@@ -98,13 +99,13 @@ describe('App (e2e)', () => {
     expect((mine.body as { title: string }).title).toBe('private');
   });
 
-  it('never returns the password hash', async () => {
-    const res = await request(app.getHttpServer())
-      .post('/echo')
-      .set({ Authorization: `Bearer ${token}` })
-      .send({ ping: 1 })
-      .expect(201);
-    expect(JSON.stringify(res.body)).not.toContain('scrypt$');
+  it('does not load the password hash into the authenticated user', async () => {
+    // JwtStrategy.validate() sets request.user from findById(), so this is what every guarded handler sees.
+    const { sub } = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString()) as { sub: number };
+    const user = await app.get(UsersService).findById(sub);
+
+    expect(user?.email).toBe(email);
+    expect(user?.password).toBeUndefined();
   });
 
   it('POST /premium-echo forbids a standard user', () => {

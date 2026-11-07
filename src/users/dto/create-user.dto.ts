@@ -1,8 +1,8 @@
-import { Transform } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
+import { NormalizeEmail } from '../../custom.decorator';
 
 export class UsersDTO {
-  @Transform(({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim().toLowerCase() : value))
+  @NormalizeEmail()
   @IsNotEmpty()
   @IsEmail()
   @MaxLength(255)

@@ -9,7 +9,6 @@ describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
 
   const mockUsersService = {
-    findOne: vi.fn(),
     findById: vi.fn(),
   };
 

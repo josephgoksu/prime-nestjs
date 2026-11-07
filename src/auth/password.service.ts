@@ -42,28 +42,61 @@ export class PasswordService {
     return [PREFIX, N, R, P, salt.toString('base64'), key.toString('base64')].join('$');
   }
 
+  /** A malformed stored hash is a failed check, never a match and never a thrown error. */
   async verify(password: string, stored: string): Promise<boolean> {
-    if (stored.startsWith('$2')) {
-      // Hashes created before the switch to scrypt.
-      return bcryptCompare(password, stored);
-    }
+    try {
+      if (stored.startsWith('$2')) {
+        // Hashes created before the switch to scrypt.
+        return await bcryptCompare(password, stored);
+      }
 
-    const parts = stored.split('$');
-    if (parts.length !== 6 || parts[0] !== PREFIX) {
+      const parsed = parseScryptHash(stored);
+      if (!parsed) {
+        return false;
+      }
+      const actual = await scryptAsync(password, parsed.salt, parsed.key.length, scryptOptions(parsed.n, parsed.r, parsed.p));
+      return timingSafeEqual(actual, parsed.key);
+    } catch {
+      // Invalid parameters, e.g. an N that is not a power of two.
       return false;
     }
-    const [, n, r, p, saltB64, keyB64] = parts;
-    const expected = Buffer.from(keyB64, 'base64');
-    const actual = await scryptAsync(password, Buffer.from(saltB64, 'base64'), expected.length, scryptOptions(Number(n), Number(r), Number(p)));
-    return actual.length === expected.length && timingSafeEqual(actual, expected);
   }
 
   /** True when the hash uses bcrypt or weaker scrypt settings than the current ones. */
   needsRehash(stored: string): boolean {
-    const parts = stored.split('$');
-    if (parts.length !== 6 || parts[0] !== PREFIX) {
-      return true;
-    }
-    return Number(parts[1]) < N || Number(parts[2]) < R || Number(parts[3]) < P;
+    const parsed = parseScryptHash(stored);
+    return !parsed || parsed.n < N || parsed.r < R || parsed.p < P;
   }
+}
+
+interface ScryptHash {
+  n: number;
+  r: number;
+  p: number;
+  salt: Buffer;
+  key: Buffer;
+}
+
+/**
+ * Strict base64 decode. Buffer.from() silently drops invalid characters, so a
+ * corrupt or empty segment would decode to an empty key, and an empty key
+ * compares equal to scrypt's empty output for every password.
+ */
+function decodeBase64(value: string): Buffer | null {
+  const decoded = Buffer.from(value, 'base64');
+  return decoded.length > 0 && decoded.toString('base64') === value ? decoded : null;
+}
+
+function parseScryptHash(stored: string): ScryptHash | null {
+  const parts = stored.split('$');
+  if (parts.length !== 6 || parts[0] !== PREFIX) {
+    return null;
+  }
+  const [n, r, p] = parts.slice(1, 4).map(Number);
+  const salt = decodeBase64(parts[4]);
+  const key = decodeBase64(parts[5]);
+  if (![n, r, p].every((v) => Number.isSafeInteger(v) && v > 0) || !salt || !key) {
+    return null;
+  }
+  return { n, r, p, salt, key };
 }

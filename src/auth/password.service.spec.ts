@@ -31,6 +31,18 @@ describe('PasswordService', () => {
     await expect(service.verify('password123', 'scrypt$1$2$3')).resolves.toBe(false);
   });
 
+  it('never accepts a hash with an empty or corrupt key', async () => {
+    await expect(service.verify('anything', 'scrypt$16384$8$5$c2FsdA==$')).resolves.toBe(false);
+    await expect(service.verify('anything', 'scrypt$16384$8$5$c2FsdA==$!!!!')).resolves.toBe(false);
+    await expect(service.verify('anything', 'scrypt$16384$8$5$$a2V5')).resolves.toBe(false);
+  });
+
+  it('returns false instead of throwing for invalid parameters', async () => {
+    await expect(service.verify('x', 'scrypt$abc$8$5$c2FsdA==$a2V5')).resolves.toBe(false);
+    await expect(service.verify('x', 'scrypt$1000$8$5$c2FsdA==$a2V5')).resolves.toBe(false);
+    await expect(service.verify('x', '$2a$10$not-a-valid-bcrypt-hash')).resolves.toBe(false);
+  });
+
   it('flags bcrypt and weaker scrypt hashes for rehash', async () => {
     expect(service.needsRehash(hashSync('x', 4))).toBe(true);
     expect(service.needsRehash('scrypt$1024$8$1$c2FsdA==$a2V5')).toBe(true);
