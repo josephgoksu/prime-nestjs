@@ -58,5 +58,5 @@ test/                    # e2e tests
 
 ## Git
 
-- Conventional commits: `type(scope): description` (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`).
+- Conventional commits: `type(scope): description` (`feat`, `fix`, `perf`, `docs`, `refactor`, `test`, `chore`, `ci`).
 - One focused change per pull request.

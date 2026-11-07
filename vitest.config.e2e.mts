@@ -11,7 +11,9 @@ export default defineConfig({
     testTimeout: 30_000,
     hookTimeout: 30_000,
     // The e2e suite logs in more often than the production auth limit allows.
-    env: { THROTTLE_AUTH_LIMIT: '1000', THROTTLE_LIMIT: '10000', LOG_LEVEL: 'silent' },
+    // Tracing stays off even when the shell sets an OTLP endpoint: instrumentation.ts
+    // requires the compiled tracing.js, which Node cannot resolve from src/ under Vitest.
+    env: { THROTTLE_AUTH_LIMIT: '1000', THROTTLE_LIMIT: '10000', LOG_LEVEL: 'silent', OTEL_SDK_DISABLED: 'true' },
   },
   plugins: [swc.vite({ module: { type: 'es6' } })],
 });

@@ -10,7 +10,7 @@ import { PgInstrumentation } from '@opentelemetry/instrumentation-pg';
 import { PinoInstrumentation } from '@opentelemetry/instrumentation-pino';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
-import { HEALTH_PATHS } from './health/health-paths';
+import { isHealthPath } from './health/health-paths';
 
 export function startTracing(): NodeSDK {
   const sdk = new NodeSDK({
@@ -22,7 +22,7 @@ export function startTracing(): NodeSDK {
     metricReaders: [],
     instrumentations: [
       // Probes would otherwise produce most of the spans.
-      new HttpInstrumentation({ ignoreIncomingRequestHook: (req) => HEALTH_PATHS.has((req.url ?? '').split('?')[0]) }),
+      new HttpInstrumentation({ ignoreIncomingRequestHook: (req) => isHealthPath(req.url) }),
       new PgInstrumentation(),
       // Adds trace_id and span_id to every log line.
       new PinoInstrumentation({ disableLogSending: true }),

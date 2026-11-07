@@ -16,12 +16,18 @@
  */
 import type { NodeSDK } from '@opentelemetry/sdk-node';
 
-/** Tracing is on when an OTLP endpoint is set and OTEL_SDK_DISABLED is not true. */
+/**
+ * Tracing is on when an OTLP endpoint is set and OTEL_SDK_DISABLED is not true.
+ * Values are trimmed and OTEL_SDK_DISABLED is case-insensitive, as in the SDK, so
+ * the SDK is not loaded when it would stay off anyway.
+ */
 export const tracingEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
-  env.OTEL_SDK_DISABLED !== 'true' && Boolean(env.OTEL_EXPORTER_OTLP_ENDPOINT || env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT);
+  env.OTEL_SDK_DISABLED?.trim().toLowerCase() !== 'true' &&
+  Boolean(env.OTEL_EXPORTER_OTLP_ENDPOINT?.trim() || env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT?.trim());
 
 // A synchronous require, not an import: the SDK must patch http, pg and pino before
-// main.ts loads them, and only when tracing is on.
+// main.ts loads them, and only when tracing is on. Node resolves it to the compiled
+// tracing.js, so it does not work under Vitest: the Vitest configs set OTEL_SDK_DISABLED.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 export const otelSdk: NodeSDK | undefined = tracingEnabled() ? (require('./tracing') as typeof import('./tracing')).startTracing() : undefined;
 
