@@ -22,7 +22,7 @@ Production-ready NestJS starter kit. Clone it, configure your `.env`, and ship â
 - **PostgreSQL + TypeORM** with migrations and connection pooling
 - **Swagger API Docs** auto-generated at `/api`
 - **Docker Compose** â€” one command to run everything
-- **Testing** with Jest (unit + e2e)
+- **Testing** with Vitest (unit + e2e)
 - **Code Quality** with ESLint, Prettier, Husky, commitlint
 - **Security** hardened with Helmet and CORS
 - **Health Checks** built-in for production monitoring
@@ -31,7 +31,7 @@ Production-ready NestJS starter kit. Clone it, configure your `.env`, and ship â
 
 ### Prerequisites
 
-- Node.js >= 20.0.0
+- Node.js >= 22.12 (24 LTS recommended)
 - PostgreSQL (or use Docker)
 
 ### Setup

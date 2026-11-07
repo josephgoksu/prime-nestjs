@@ -46,5 +46,9 @@ lerna-debug.log*
 
 # Lock files (only use npm)
 bun.lock
+bun.lockb
 yarn.lock
 pnpm-lock.yaml
+
+# TypeScript incremental build info
+*.tsbuildinfo

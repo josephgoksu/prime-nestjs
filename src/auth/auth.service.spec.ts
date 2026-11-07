@@ -1,37 +1,38 @@
+import type { Mock } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UsersService } from 'src/users/users.service';
-import { LoggerService } from 'src/logger/logger.service';
+import { UsersService } from '../users/users.service';
+import { LoggerService } from '../logger/logger.service';
 
-jest.mock('bcryptjs', () => ({
-  compareSync: jest.fn(),
-  hashSync: jest.fn(() => 'hashedpassword'),
+vi.mock('bcryptjs', () => ({
+  compareSync: vi.fn(),
+  hashSync: vi.fn(() => 'hashedpassword'),
 }));
 
 import { compareSync, hashSync } from 'bcryptjs';
 
-const mockCompareSync = compareSync as jest.Mock;
-const mockHashSync = hashSync as jest.Mock;
+const mockCompareSync = compareSync as Mock;
+const mockHashSync = hashSync as Mock;
 
 describe('AuthService', () => {
   let service: AuthService;
 
   const mockJwtService = {
-    sign: jest.fn(),
+    sign: vi.fn(),
   };
 
   const mockUsersService = {
-    findOne: jest.fn(),
-    create: jest.fn(),
+    findOne: vi.fn(),
+    create: vi.fn(),
   };
 
   const mockLoggerService = {
-    debug: jest.fn(),
-    log: jest.fn(),
-    error: jest.fn(),
-    warn: jest.fn(),
+    debug: vi.fn(),
+    log: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -57,7 +58,7 @@ describe('AuthService', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should be defined', () => {

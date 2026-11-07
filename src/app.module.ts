@@ -5,7 +5,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from './tasks/tasks.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './config';
 
@@ -17,8 +17,8 @@ import configuration from './config';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => {
-        const dbConfig = configService.get('database');
+      useFactory: (configService: ConfigService): TypeOrmModuleOptions => {
+        const dbConfig = configService.get<TypeOrmModuleOptions>('database');
         if (!dbConfig) {
           throw new Error('Database configuration is missing');
         }

@@ -7,8 +7,8 @@ describe('AppController', () => {
   let appService: AppService;
 
   const mockAppService = {
-    getHello: jest.fn(),
-    healthCheck: jest.fn(),
+    getHello: vi.fn(),
+    healthCheck: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -27,7 +27,7 @@ describe('AppController', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('root', () => {

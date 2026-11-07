@@ -2,19 +2,19 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './jwt.strategy';
-import { UsersService } from 'src/users/users.service';
-import { Role } from 'src/users/enums/role.enum';
+import { UsersService } from '../../users/users.service';
+import { Role } from '../../users/enums/role.enum';
 
 describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
 
   const mockUsersService = {
-    findOne: jest.fn(),
-    findById: jest.fn(),
+    findOne: vi.fn(),
+    findById: vi.fn(),
   };
 
   const mockConfigService = {
-    get: jest.fn((key: string) => {
+    get: vi.fn((key: string) => {
       if (key === 'keys.publicKey') {
         return '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtest\n-----END PUBLIC KEY-----';
       }
@@ -31,7 +31,7 @@ describe('JwtStrategy', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should be defined', () => {
