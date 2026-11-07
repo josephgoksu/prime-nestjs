@@ -5,13 +5,15 @@ import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { LoggerService } from '../logger/logger.service';
 import { PasswordService } from './password.service';
+import { RefreshTokenService } from './refresh-token.service';
 
 describe('AuthService', () => {
   let service: AuthService;
 
-  const mockJwtService = { sign: vi.fn() };
+  const mockJwtService = { sign: vi.fn(), decode: vi.fn(() => ({ iat: 1000, exp: 1900 })) };
   const mockUsersService = {
     findByEmailWithPassword: vi.fn(),
+    findById: vi.fn(),
     create: vi.fn(),
     updatePassword: vi.fn(),
   };
@@ -19,6 +21,13 @@ describe('AuthService', () => {
     hash: vi.fn(),
     verify: vi.fn(),
     needsRehash: vi.fn(),
+  };
+  const refreshExpiry = new Date('2030-01-01T00:00:00Z');
+  const mockRefreshTokens = {
+    issue: vi.fn(() => Promise.resolve({ token: 'rt-1', expiresAt: refreshExpiry })),
+    rotate: vi.fn(),
+    revoke: vi.fn(),
+    revokeAllForUser: vi.fn(),
   };
   const mockLoggerService = { debug: vi.fn(), log: vi.fn(), error: vi.fn(), warn: vi.fn() };
 
@@ -40,6 +49,7 @@ describe('AuthService', () => {
         { provide: JwtService, useValue: mockJwtService },
         { provide: UsersService, useValue: mockUsersService },
         { provide: PasswordService, useValue: mockPasswordService },
+        { provide: RefreshTokenService, useValue: mockRefreshTokens },
         { provide: LoggerService, useValue: mockLoggerService },
       ],
     }).compile();
@@ -62,7 +72,15 @@ describe('AuthService', () => {
 
       const result = await service.login(loginDto);
 
-      expect(result).toEqual({ email: activeUser.email, access_token: 'mock-jwt-token' });
+      expect(result).toEqual({
+        email: activeUser.email,
+        token_type: 'Bearer',
+        access_token: 'mock-jwt-token',
+        expires_in: 900,
+        refresh_token: 'rt-1',
+        refresh_token_expires_at: refreshExpiry.toISOString(),
+      });
+      expect(mockRefreshTokens.issue).toHaveBeenCalledWith(activeUser.id);
       expect(mockJwtService.sign).toHaveBeenCalledWith({ sub: activeUser.id, email: activeUser.email });
       expect(mockUsersService.updatePassword).not.toHaveBeenCalled();
     });
@@ -109,6 +127,34 @@ describe('AuthService', () => {
 
       await expect(service.login(loginDto)).resolves.toHaveProperty('access_token', 'token');
       expect(mockLoggerService.warn).toHaveBeenCalled();
+    });
+  });
+
+  describe('refresh', () => {
+    it('returns a new token pair for an active user', async () => {
+      mockRefreshTokens.rotate.mockResolvedValue({ userId: 1, refreshToken: { token: 'rt-2', expiresAt: refreshExpiry } });
+      mockUsersService.findById.mockResolvedValue(activeUser);
+      mockJwtService.sign.mockReturnValue('new-access');
+
+      const result = await service.refresh('rt-1');
+
+      expect(mockRefreshTokens.rotate).toHaveBeenCalledWith('rt-1');
+      expect(result).toMatchObject({ access_token: 'new-access', refresh_token: 'rt-2' });
+    });
+
+    it('revokes every session and rejects a disabled or deleted user', async () => {
+      mockRefreshTokens.rotate.mockResolvedValue({ userId: 1, refreshToken: { token: 'rt-2', expiresAt: refreshExpiry } });
+      mockUsersService.findById.mockResolvedValue({ ...activeUser, isActive: false });
+
+      await expect(service.refresh('rt-1')).rejects.toThrow(UnauthorizedException);
+      expect(mockRefreshTokens.revokeAllForUser).toHaveBeenCalledWith(1);
+    });
+  });
+
+  describe('logout', () => {
+    it('revokes the session', async () => {
+      await service.logout('rt-1');
+      expect(mockRefreshTokens.revoke).toHaveBeenCalledWith('rt-1');
     });
   });
 

@@ -69,6 +69,37 @@ describe('App (e2e)', () => {
     token = body.access_token;
   });
 
+  it('refresh rotates the token and logout ends the session', async () => {
+    const server = app.getHttpServer();
+    type Tokens = { access_token: string; refresh_token: string; expires_in: number; token_type: string };
+
+    const login = (await request(server).post('/auth/login').send({ email, password }).expect(200)).body as Tokens;
+    expect(login).toMatchObject({ token_type: 'Bearer', expires_in: 900, refresh_token: expect.any(String) });
+
+    const first = (await request(server).post('/auth/refresh').send({ refresh_token: login.refresh_token }).expect(200)).body as Tokens;
+    expect(first.refresh_token).not.toBe(login.refresh_token);
+    await request(server)
+      .get('/auth/me')
+      .set({ Authorization: `Bearer ${first.access_token}` })
+      .expect(200);
+
+    // The rotated-out token no longer works.
+    await request(server).post('/auth/refresh').send({ refresh_token: login.refresh_token }).expect(401);
+
+    await request(server).post('/auth/logout').send({ refresh_token: first.refresh_token }).expect(204);
+    await request(server).post('/auth/refresh').send({ refresh_token: first.refresh_token }).expect(401);
+    await request(server).post('/auth/refresh').send({ refresh_token: 'not-a-token' }).expect(401);
+  });
+
+  it('GET /auth/me returns the profile without the password', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/auth/me')
+      .set({ Authorization: `Bearer ${token}` })
+      .expect(200);
+    expect(res.body).toMatchObject({ email, name: 'E2E', roles: 'standard', isActive: true });
+    expect(res.body).not.toHaveProperty('password');
+  });
+
   it('POST /auth/login rejects a wrong password', () => {
     return request(app.getHttpServer()).post('/auth/login').send({ email, password: 'wrong-password' }).expect(401);
   });

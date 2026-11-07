@@ -5,6 +5,18 @@ import { LoginDTO } from './dto/login.dto';
 import { LoggerService } from '../logger/logger.service';
 import { UsersService } from '../users/users.service';
 import { PasswordService } from './password.service';
+import { RefreshTokenService } from './refresh-token.service';
+import { User } from '../users/entities/user.entity';
+
+export interface AuthTokens {
+  email: string;
+  token_type: 'Bearer';
+  access_token: string;
+  /** Access token lifetime in seconds. */
+  expires_in: number;
+  refresh_token: string;
+  refresh_token_expires_at: string;
+}
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -19,13 +31,14 @@ export class AuthService implements OnModuleInit {
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
     private readonly passwordService: PasswordService,
+    private readonly refreshTokens: RefreshTokenService,
   ) {}
 
   async onModuleInit(): Promise<void> {
     this.dummyHash = await this.passwordService.hash('timing-equaliser-not-a-real-password');
   }
 
-  async login(dto: LoginDTO): Promise<{ email: string; access_token: string }> {
+  async login(dto: LoginDTO): Promise<AuthTokens> {
     const user = await this.usersService.findByEmailWithPassword(dto.email);
     if (!user) {
       await this.passwordService.verify(dto.password, this.dummyHash);
@@ -51,12 +64,35 @@ export class AuthService implements OnModuleInit {
       }
     }
 
+    return this.issueTokens(user, await this.refreshTokens.issue(user.id));
+  }
+
+  /** Rotates a refresh token and returns a fresh token pair. */
+  async refresh(presented: string): Promise<AuthTokens> {
+    const { userId, refreshToken } = await this.refreshTokens.rotate(presented);
+    const user = await this.usersService.findById(userId);
+    if (!user || !user.isActive) {
+      await this.refreshTokens.revokeAllForUser(userId);
+      throw new UnauthorizedException('Account is disabled');
+    }
+    return this.issueTokens(user, refreshToken);
+  }
+
+  /** Ends the session that the refresh token belongs to. */
+  logout(presented: string): Promise<void> {
+    return this.refreshTokens.revoke(presented);
+  }
+
+  private issueTokens(user: Pick<User, 'id' | 'email'>, refreshToken: { token: string; expiresAt: Date }): AuthTokens {
+    const accessToken = this.jwtService.sign({ sub: user.id, email: user.email });
+    const { exp, iat } = this.jwtService.decode<{ exp: number; iat: number }>(accessToken);
     return {
       email: user.email,
-      access_token: this.jwtService.sign({
-        sub: user.id,
-        email: user.email,
-      }),
+      token_type: 'Bearer',
+      access_token: accessToken,
+      expires_in: exp - iat,
+      refresh_token: refreshToken.token,
+      refresh_token_expires_at: refreshToken.expiresAt.toISOString(),
     };
   }
 

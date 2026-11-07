@@ -3,6 +3,7 @@ import './load-env';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { Task } from '../tasks/entities/task.entity';
 import { User } from '../users/entities/user.entity';
+import { RefreshToken } from '../auth/entities/refresh-token.entity';
 import { migrations } from '../migrations';
 
 export const dataSourceOptions: DataSourceOptions = {
@@ -14,9 +15,11 @@ export const dataSourceOptions: DataSourceOptions = {
   database: process.env.POSTGRES_DB,
   // Entities are listed as classes, not globs, so the app, the TypeORM CLI
   // (ts-node) and the test runner all share the same class identity.
-  entities: [User, Task],
+  entities: [User, Task, RefreshToken],
   // Registered in src/migrations/index.ts, as classes for the same reason as entities.
   migrations,
+  // gen_random_uuid() is built into PostgreSQL 13+, so no extension (and no superuser) is needed.
+  uuidExtension: 'pgcrypto',
   synchronize: false,
   // Apply pending migrations on startup when DB_RUN_MIGRATIONS=true (the Docker Compose default).
   migrationsRun: process.env.DB_RUN_MIGRATIONS === 'true',
